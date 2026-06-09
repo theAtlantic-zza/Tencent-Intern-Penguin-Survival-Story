@@ -3,7 +3,8 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import AttrPanel, { WeekIndicator } from '../components/AttrPanel';
 import { playSfx } from '../game/sfx';
-import type { Attrs, AttrKey } from '../game/types';
+import { useTypewriter } from '../components/useTypewriter';
+import type { Attrs, AttrKey, GameEvent } from '../game/types';
 
 interface Props {
   onOpenCollection: () => void;
@@ -137,50 +138,14 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
 
       {/* 选中后的事件详情 */}
       {currentEvent && (
-        <Card key={currentEvent.id} className="animate-pop !p-0 overflow-hidden">
-          <div className="aspect-square w-full overflow-hidden bg-[#9ed8ee]">
-            <img
-              src={currentEvent.image}
-              alt=""
-              className="h-full w-full object-cover"
-              draggable={false}
-            />
-          </div>
-
-          <div className="p-5">
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${currentEvent.tag.color}`}
-            >
-              <span>{currentEvent.tag.emoji}</span>
-              <span>{currentEvent.tag.label}</span>
-            </span>
-
-            <div className="mt-3 text-[15px] font-semibold leading-relaxed text-slate-800">
-              {currentEvent.title}
-            </div>
-            {currentEvent.subtitle && (
-              <div className="mt-1 text-xs leading-relaxed text-slate-500">
-                {currentEvent.subtitle}
-              </div>
-            )}
-
-            <div className="mt-4 flex flex-col gap-2">
-              {currentEvent.choices.map((c, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    playSfx('click');
-                    pickChoice(i);
-                  }}
-                  className="rounded-xl bg-white px-3 py-3 text-left text-sm text-slate-700 ring-1 ring-slate-200 transition hover:-translate-y-[1px] hover:ring-tx-blue/40 active:scale-[0.99]"
-                >
-                  {c.emoji && <span className="mr-1.5">{c.emoji}</span>}
-                  {c.text}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Card>
+        <EventDetail
+          key={currentEvent.id}
+          event={currentEvent}
+          onPick={(i) => {
+            playSfx('click');
+            pickChoice(i);
+          }}
+        />
       )}
 
       {/* 过渡卡：刚做完选择，未刷新下一周 */}
@@ -278,5 +243,83 @@ function EffectsSummary({ effects }: { effects: Partial<Attrs> | null }) {
         );
       })}
     </div>
+  );
+}
+
+function EventDetail({
+  event,
+  onPick,
+}: {
+  event: GameEvent;
+  onPick: (idx: number) => void;
+}) {
+  // 标题 + 副标 拼一段做打字机
+  const fullText = event.subtitle
+    ? `${event.title}\n${event.subtitle}`
+    : event.title;
+  const { shown, done, skip } = useTypewriter(fullText, 35);
+  const lines = shown.split('\n');
+  const titleShown = lines[0] ?? '';
+  const subtitleShown = lines[1] ?? '';
+
+  return (
+    <Card className="animate-pop !p-0 overflow-hidden">
+      <div className="aspect-square w-full overflow-hidden bg-[#9ed8ee]">
+        <img
+          src={event.image}
+          alt=""
+          className="h-full w-full object-cover"
+          draggable={false}
+        />
+      </div>
+
+      <div className="p-5" onClick={skip}>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${event.tag.color}`}
+        >
+          <span>{event.tag.emoji}</span>
+          <span>{event.tag.label}</span>
+        </span>
+
+        <div className="mt-3 min-h-[40px] text-[15px] font-semibold leading-relaxed text-slate-800">
+          {titleShown}
+          {!done && titleShown.length === event.title.length === false && (
+            <span className="ml-0.5 inline-block h-4 w-1 animate-pulse bg-slate-400 align-middle" />
+          )}
+        </div>
+        {event.subtitle && (
+          <div className="mt-1 min-h-[18px] text-xs leading-relaxed text-slate-500">
+            {subtitleShown}
+          </div>
+        )}
+
+        {!done && (
+          <div className="mt-2 text-center text-[10px] text-slate-400">
+            点击跳过 ↓
+          </div>
+        )}
+
+        <div
+          className={`mt-4 flex flex-col gap-2 transition-opacity ${
+            done ? 'opacity-100' : 'pointer-events-none opacity-40'
+          }`}
+        >
+          {event.choices.map((c, i) => (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!done) return;
+                onPick(i);
+              }}
+              className="rounded-xl bg-white px-3 py-3 text-left text-sm text-slate-700 ring-1 ring-slate-200 transition hover:-translate-y-[1px] hover:ring-tx-blue/40 active:scale-[0.99]"
+            >
+              {c.emoji && <span className="mr-1.5">{c.emoji}</span>}
+              {c.text}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Card>
   );
 }

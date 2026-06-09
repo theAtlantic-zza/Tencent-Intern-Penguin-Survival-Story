@@ -1,4 +1,5 @@
 import { useGame } from '../game/store';
+import Button from '../components/Button';
 import Card from '../components/Card';
 import { playSfx } from '../game/sfx';
 
@@ -47,6 +48,14 @@ export default function TalentScreen() {
       <div className="text-center text-[11px] text-slate-400">
         随机抽取，每次重开会刷新
       </div>
+
+      <Button
+        variant="ghost"
+        className="w-full"
+        onClick={() => useGame.setState({ stage: 'choosing' })}
+      >
+        ← 返回选职业
+      </Button>
     </div>
   );
 }

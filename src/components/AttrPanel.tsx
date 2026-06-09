@@ -1,4 +1,5 @@
 import type { Attrs, AttrKey } from '../game/types';
+import { useAnimatedNumber } from './useAnimatedNumber';
 
 const INTERN_WEEKS = 12;
 
@@ -35,7 +36,7 @@ export default function AttrPanel({ attrs, diff }: Props) {
             {META.rank.emoji} 转正进度
           </span>
           <span className="font-semibold text-tx-deep">
-            {Math.max(0, attrs.rank)}
+            <AnimatedNum value={Math.max(0, attrs.rank)} />
             {(diff?.rank ?? 0) !== 0 && (
               <span
                 className={`ml-1 text-[10px] ${
@@ -82,7 +83,7 @@ function Bar({ k, val, d, wide }: BarProps) {
           {meta.emoji} {meta.label}
         </span>
         <span className="font-semibold text-slate-800">
-          {val}
+          <AnimatedNum value={val} />
           {d !== 0 && (
             <span
               className={`ml-1 text-[10px] ${
@@ -129,4 +130,9 @@ export function WeekIndicator({
       </div>
     </div>
   );
+}
+
+function AnimatedNum({ value }: { value: number }) {
+  const v = useAnimatedNumber(value, 450);
+  return <>{v}</>;
 }
