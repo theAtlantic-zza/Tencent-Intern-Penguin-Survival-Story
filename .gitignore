@@ -1,3 +1,14 @@
+# Build / cache
+.cache
+.parcel-cache
+.eslintcache
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Build output
+dist
+dist-ssr
+
 # Logs
 logs
 *.log
@@ -7,10 +18,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Deps
 node_modules
-dist
-dist-ssr
-*.local
 
 # Editor
 .vscode/*
@@ -22,16 +31,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Build / cache
-.cache
-.parcel-cache
-.eslintcache
-.tsbuildinfo
+*.local
 
 # Env
 .env
 .env.local
 .env.*.local
-
-tsconfig.tsbuildinfo

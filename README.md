@@ -9,6 +9,8 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646cff)](https://vitejs.dev/)
 [![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com/)
 
+> 🚀 **想自己部署？** → 详见 [DEPLOY.md](./DEPLOY.md)（推荐 EdgeOne Pages，5 分钟免费上线）
+
 ---
 
 ## ✨ 玩法
