@@ -107,4 +107,5 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'extended', name: '马拉松选手', emoji: '🏃', desc: '完整版 24 周通关一次。' },
   { id: 'rich', name: '小富即安', emoji: '💰', desc: '一局内存款达到 20 以上。' },
   { id: 'allTalents', name: '天赋全收集', emoji: '🌟', desc: '体验过全部 5 种天赋。' },
+  { id: 'allPros', name: '五职归一', emoji: '🐧', desc: '体验过全部 5 个入职部门。' },
 ];

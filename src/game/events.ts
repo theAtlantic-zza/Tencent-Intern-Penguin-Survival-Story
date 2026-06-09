@@ -531,4 +531,178 @@ export const EVENTS: GameEvent[] = [
       { text: '🥲 临场怯了支支吾吾', effects: { eq: -3, rank: -5, mentor: -3 } },
     ],
   },
+
+  // ============ 产品鹅 专属 ============
+  {
+    id: 'pm_change_req',
+    professionId: 'pm',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    title: '研发哥怒视你："这个需求你昨天才说定稿，今天又改？"',
+    choices: [
+      { text: '🛡 坚持改', effects: { eq: -2, iq: 1, rank: 1 } },
+      { text: '↩️ 撤回需求', effects: { eq: 1, hp: -1, mentor: -1 } },
+      { text: '🧋 请他喝奶茶', effects: { money: -1, eq: 2, mentor: 1 } },
+    ],
+  },
+  {
+    id: 'pm_dau',
+    professionId: 'pm',
+    tag: TAG.boss,
+    image: '/images/event-overtime.png',
+    minWeek: 4,
+    title: '上线一周 DAU 不升反降，老板让你给个解释。',
+    choices: [
+      { text: '🪞 甩锅给设计', effects: { eq: -2, hp: 1, mentor: -1 } },
+      { text: '🪞 甩锅给研发', effects: { eq: -2, hp: 1, mentor: -1 } },
+      { text: '📊 认真复盘报告', effects: { iq: 3, hp: -1, eq: 1, rank: 3, mentor: 2 } },
+    ],
+  },
+  {
+    id: 'pm_battle',
+    professionId: 'pm',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 6,
+    title: '需求评审会，被质问"为什么这么做？"',
+    subtitle: '同部门 5 个产品同事都看着你。',
+    choices: [
+      { text: '📈 用数据 + 用户故事 + 竞品分析三连', effects: { iq: 3, eq: 2, rank: 4, mentor: 2 } },
+      { text: '😎 反问"那你觉得应该怎么做？"', effects: { eq: -1, iq: 1, rank: 1 } },
+      { text: '🤐 沉默，会后再补', effects: { eq: -1, hp: -1 } },
+    ],
+  },
+
+  // ============ 设计鹅 专属 ============
+  {
+    id: 'design_revise',
+    professionId: 'design',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    title: '甲方说："五彩斑斓的黑，再大气一点。"',
+    choices: [
+      { text: '😇 微笑改第 17 版', effects: { hp: -3, eq: 1, mentor: 1, rank: 1 } },
+      { text: '🪄 换个文件名再交一次', effects: { iq: 2, eq: 1, rank: 1 }, outcome: '甲方说：这版好多了！' },
+      { text: '⚔️ 据理力争', effects: { eq: -2, iq: 1, mentor: -1 } },
+    ],
+  },
+  {
+    id: 'design_ip',
+    professionId: 'design',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 5,
+    title: '你设计的 IP 形象在小红书上火了，但被指"撞款"。',
+    choices: [
+      { text: '📣 发公告澄清', effects: { eq: 1, iq: 1, mentor: 1 } },
+      { text: '🤐 不予回应', effects: { hp: -1, eq: -1 } },
+      { text: '🖼 甩出原稿过程图', effects: { eq: 2, iq: 2, rank: 3, mentor: 2 } },
+    ],
+  },
+  {
+    id: 'design_pixel',
+    professionId: 'design',
+    tag: TAG.trap,
+    image: '/images/event-overtime.png',
+    title: 'leader 把你拉到屏幕前："这里偏了 1 个像素。"',
+    choices: [
+      { text: '🔍 立刻对齐到完美', effects: { iq: 1, hp: -1, mentor: 2, rank: 1 } },
+      { text: '🤷 问"用户能看出来吗？"', effects: { eq: -2, mentor: -2 } },
+      { text: '😶 默默改完不说话', effects: { mentor: 1, hp: -1 } },
+    ],
+  },
+
+  // ============ 研发鹅 专属 ============
+  {
+    id: 'dev_p0',
+    professionId: 'dev',
+    tag: TAG.trap,
+    image: '/images/event-overtime.png',
+    title: '凌晨三点，线上出现 P0 故障，群里 @ 全员。',
+    choices: [
+      { text: '⚡ 紧急回滚', effects: { hp: -2, iq: 2, money: 1, rank: 2, mentor: 2 } },
+      { text: '🔬 改完再测', effects: { hp: -3, iq: 3, rank: 3, mentor: 1 } },
+      { text: '🙈 装作没看见群消息', effects: { hp: 2, eq: -3, mentor: -3, rank: -3 } },
+    ],
+  },
+  {
+    id: 'dev_oss',
+    professionId: 'dev',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 4,
+    title: '你周末写的开源项目突然在 GitHub 拿了 3k star。',
+    choices: [
+      { text: '🛠 认真维护', effects: { iq: 3, hp: -2, eq: 2, rank: 2 } },
+      { text: '😴 挂着不管', effects: { eq: -1 } },
+      { text: '💼 尝试商业化', effects: { money: 4, hp: -2, iq: 1, rank: 2 } },
+    ],
+  },
+  {
+    id: 'dev_review',
+    professionId: 'dev',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    title: 'Code Review，资深同事在你的 PR 下连留 23 条评论。',
+    choices: [
+      { text: '📝 一条一条改完', effects: { iq: 3, hp: -2, mentor: 2, rank: 2 } },
+      { text: '🤺 逐条反驳', effects: { iq: 2, eq: -2, mentor: -1 } },
+      { text: '🙏 求他来对线讲讲', effects: { iq: 2, eq: 2, mentor: 2, rank: 1 } },
+    ],
+  },
+
+  // ============ 运营鹅 专属 ============
+  {
+    id: 'op_event',
+    professionId: 'op',
+    tag: TAG.trap,
+    image: '/images/event-overtime.png',
+    minWeek: 3,
+    title: '你策划的拉新活动，被薅羊毛大军一夜薅走 200 万预算。',
+    choices: [
+      { text: '🚨 紧急下线', effects: { eq: 1, money: -2, hp: -2, mentor: 1 } },
+      { text: '🔥 硬着头皮继续', effects: { money: -3, iq: 1, rank: 1 } },
+      { text: '🪞 甩锅给风控', effects: { eq: -3, mentor: -2 } },
+    ],
+  },
+  {
+    id: 'op_kpi',
+    professionId: 'op',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 5,
+    title: '月底 KPI 还差 30%，老板让你"想想办法"。',
+    choices: [
+      { text: '💧 刷量', effects: { money: 1, eq: -2, iq: -1, mentor: -2 } },
+      { text: '🔥 通宵做活动', effects: { hp: -3, money: 3, iq: 1, rank: 3, mentor: 2 } },
+      { text: '🐧 坦白汇报', effects: { eq: 2, money: -1, mentor: 2 } },
+    ],
+  },
+
+  // ============ 职能鹅 专属 ============
+  {
+    id: 'staff_hire',
+    professionId: 'staff',
+    tag: TAG.work,
+    image: '/images/event-overtime.png',
+    title: '业务部门要紧急扩编 20 人，HRBP 让你三天搞定。',
+    choices: [
+      { text: '🌙 熬夜筛简历', effects: { hp: -3, iq: 2, money: 1, rank: 3, mentor: 2 } },
+      { text: '🤝 请猎头帮忙', effects: { money: -2, eq: 1, rank: 1 } },
+      { text: '⚡ 直接发 offer', effects: { eq: -2, hp: 1, mentor: -2 } },
+    ],
+  },
+  {
+    id: 'staff_audit',
+    professionId: 'staff',
+    tag: TAG.boss,
+    image: '/images/event-confused.png',
+    minWeek: 4,
+    title: '审计来查账，发现一笔报销记录有点问题。',
+    choices: [
+      { text: '📋 据实说明', effects: { eq: 1, iq: 1, mentor: 2, rank: 2 } },
+      { text: '🤝 帮同事顶下', effects: { eq: 2, money: -2, hp: -1 } },
+      { text: '🙃 装作不知情', effects: { eq: -2, mentor: -2 } },
+    ],
+  },
 ];

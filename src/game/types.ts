@@ -48,6 +48,8 @@ export interface GameEvent {
   maxWeek?: number;
   /** 是否为晋升副本事件（仅完整版） */
   extendedOnly?: boolean;
+  /** 职业专属事件：仅这个职业能触发；不填代表通用事件 */
+  professionId?: Track;
   title: string;
   subtitle?: string;
   choices: Choice[];

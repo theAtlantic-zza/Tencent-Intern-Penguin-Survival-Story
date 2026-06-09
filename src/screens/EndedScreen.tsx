@@ -16,6 +16,7 @@ export default function EndedScreen({ onOpenCollection }: Props) {
   const name = useGame((s) => s.name);
   const week = useGame((s) => s.week);
   const difficulty = useGame((s) => s.difficulty);
+  const profession = useGame((s) => s.profession);
   const talent = useGame((s) => s.talent);
   const reincarnate = useGame((s) => s.reincarnate);
   const goHome = useGame((s) => s.goHome);
@@ -92,7 +93,7 @@ export default function EndedScreen({ onOpenCollection }: Props) {
             </div>
 
             <div className="mt-4 rounded-xl bg-tx-ice/60 px-3 py-2 text-[11px] text-tx-deep">
-              {name} · 实习鹅 · {cfg.name} · 共撑过{' '}
+              {name} · {profession ? `${profession.emoji} ${profession.name}` : '实习鹅'} · {cfg.name} · 共撑过{' '}
               {Math.min(week, totalWeeks)} / {totalWeeks} 周
             </div>
 

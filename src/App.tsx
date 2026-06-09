@@ -4,6 +4,7 @@ import { ENDINGS, ACHIEVEMENTS } from './game/endings';
 import HomeScreen from './screens/HomeScreen';
 import NamingScreen from './screens/NamingScreen';
 import DifficultyScreen from './screens/DifficultyScreen';
+import ChoosingScreen from './screens/ChoosingScreen';
 import TalentScreen from './screens/TalentScreen';
 import PlayingScreen from './screens/PlayingScreen';
 import EndedScreen from './screens/EndedScreen';
@@ -25,6 +26,7 @@ export default function App() {
         )}
         {stage === 'naming' && <NamingScreen />}
         {stage === 'difficulty' && <DifficultyScreen />}
+        {stage === 'choosing' && <ChoosingScreen />}
         {stage === 'talent' && <TalentScreen />}
         {stage === 'playing' && (
           <PlayingScreen onOpenCollection={() => setShowCollection(true)} />

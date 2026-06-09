@@ -11,6 +11,7 @@ interface Props {
 
 export default function PlayingScreen({ onOpenCollection }: Props) {
   const name = useGame((s) => s.name);
+  const profession = useGame((s) => s.profession);
   const talent = useGame((s) => s.talent);
   const attrs = useGame((s) => s.attrs);
   const week = useGame((s) => s.week);
@@ -45,8 +46,13 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
                 {name}
               </span>
               <span className="shrink-0 rounded-full bg-tx-blue/10 px-2 py-0.5 text-[10px] text-tx-blue">
-                实习鹅
+                {profession ? `${profession.emoji} 实习${profession.name.slice(0, 1)}` : '实习鹅'}
               </span>
+              {profession && (
+                <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-700">
+                  💎 {profession.signatureTalent.name}
+                </span>
+              )}
               {talent && (
                 <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-700">
                   {talent.emoji} {talent.name}

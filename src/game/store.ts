@@ -4,6 +4,8 @@ import { EVENTS } from './events';
 import { ENDINGS, ACHIEVEMENTS } from './endings';
 import { DIFFICULTY_CONFIG, TRACKS } from './tracks';
 import { getTalentById, TALENTS } from './talents';
+import { getProfessionById, PROFESSIONS } from './professions';
+import type { Profession } from './professions';
 import type {
   Achievement,
   Attrs,
@@ -17,7 +19,14 @@ import type {
   Track,
 } from './types';
 
-export type Stage = 'home' | 'naming' | 'difficulty' | 'talent' | 'playing' | 'ended';
+export type Stage =
+  | 'home'
+  | 'naming'
+  | 'difficulty'
+  | 'choosing'
+  | 'talent'
+  | 'playing'
+  | 'ended';
 
 interface PersistedState {
   unlockedEndings: string[];
@@ -25,7 +34,8 @@ interface PersistedState {
   reincarnations: number;
   records: RunRecord[];
   triedTalents: string[];
-  /** 总开关：静音 */
+  /** 体验过的职业 id */
+  triedProfessions: string[];
   muted: boolean;
 }
 
@@ -33,21 +43,21 @@ interface RuntimeState {
   stage: Stage;
   name: string;
   difficulty: Difficulty;
+  /** 入职职业 */
+  profession: Profession | null;
+  /** 通用天赋（3 选 1） */
   talent: Talent | null;
-  /** 开局抽到的 3 个候选天赋 */
   talentOptions: Talent[];
   attrs: Attrs;
   week: number;
+  /** trackScores 仍保留，用作"中途跳槽"等延伸场景；但结局走的是 profession.id */
   trackScores: Record<Track, number>;
-  /** 当前周三选一候选事件 */
   eventOptions: GameEvent[];
-  /** 已选中正在面对的事件 */
   currentEvent: GameEvent | null;
   lastOutcome: string | null;
   lastEffects: Partial<Attrs> | null;
   ending: Ending | null;
   endingDesc: string | null;
-  /** 一局内的最高存款，用于成就判定 */
   peakMoney: number;
   usedEventIds: string[];
 }
@@ -58,8 +68,8 @@ interface Actions {
   setName: (name: string) => void;
   confirmName: (name: string) => void;
   pickDifficulty: (d: Difficulty) => void;
+  pickProfession: (id: string) => void;
   pickTalent: (id: string) => void;
-  /** 玩家从 3 个候选中选一个事件去面对 */
   pickEvent: (idx: number) => void;
   pickChoice: (idx: number) => void;
   nextWeek: () => void;
@@ -69,15 +79,6 @@ interface Actions {
 }
 
 type Store = RuntimeState & PersistedState & Actions;
-
-const INITIAL_ATTRS: Attrs = {
-  hp: 8,
-  iq: 5,
-  eq: 5,
-  money: 5,
-  mentor: 0,
-  rank: 0,
-};
 
 const INITIAL_TRACK_SCORES: Record<Track, number> = {
   pm: 0,
@@ -91,9 +92,10 @@ const initialRuntime: RuntimeState = {
   stage: 'home',
   name: '',
   difficulty: 'standard',
+  profession: null,
   talent: null,
   talentOptions: [],
-  attrs: { ...INITIAL_ATTRS },
+  attrs: { hp: 8, iq: 5, eq: 5, money: 5, mentor: 0, rank: 0 },
   week: 1,
   trackScores: { ...INITIAL_TRACK_SCORES },
   eventOptions: [],
@@ -112,11 +114,13 @@ const initialPersisted: PersistedState = {
   reincarnations: 0,
   records: [],
   triedTalents: [],
+  triedProfessions: [],
   muted: false,
 };
 
-/** 三选一事件池（不放重复 id，且尽量从不同 tag 抽，体验更丰富） */
+/** 三选一：职业专属事件优先，其余通用 */
 function rollEvents(
+  professionId: Track,
   difficulty: Difficulty,
   week: number,
   usedIds: string[],
@@ -125,32 +129,39 @@ function rollEvents(
     if (e.minWeek && week < e.minWeek) return false;
     if (e.maxWeek && week > e.maxWeek) return false;
     if (e.extendedOnly && difficulty !== 'extended') return false;
+    // 职业专属事件只有匹配的职业能触发；通用事件所有人都能触发
+    if (e.professionId && e.professionId !== professionId) return false;
     return !usedIds.includes(e.id);
   });
-  // 全用过则放宽限制（只过滤 minWeek 和 difficulty）
   const fallback =
     pool.length >= 3
       ? pool
       : EVENTS.filter((e) => {
           if (e.minWeek && week < e.minWeek) return false;
           if (e.extendedOnly && difficulty !== 'extended') return false;
+          if (e.professionId && e.professionId !== professionId) return false;
           return true;
         });
-  // Fisher-Yates 抽 3 个不同 tag 的事件
   const shuffled = [...fallback];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+  // 至少塞 1 个职业专属事件（如果池子里有的话）
   const out: GameEvent[] = [];
   const seenTags = new Set<string>();
+  const proSpecific = shuffled.find((e) => e.professionId === professionId);
+  if (proSpecific) {
+    out.push(proSpecific);
+    seenTags.add(proSpecific.tag.label);
+  }
   for (const e of shuffled) {
     if (out.length >= 3) break;
+    if (out.includes(e)) continue;
     if (seenTags.has(e.tag.label)) continue;
     out.push(e);
     seenTags.add(e.tag.label);
   }
-  // tag 不够 3 种时直接补
   if (out.length < 3) {
     for (const e of shuffled) {
       if (out.length >= 3) break;
@@ -168,27 +179,29 @@ function applyEffects(attrs: Attrs, effects: Partial<Attrs>): Attrs {
   return next;
 }
 
-function topTrack(scores: Record<Track, number>): Track {
-  let best: Track = 'pm';
-  let bestVal = -Infinity;
-  (Object.keys(scores) as Track[]).forEach((k) => {
-    if (scores[k] > bestVal) {
-      bestVal = scores[k];
-      best = k;
-    }
-  });
-  return best;
+/** 顺序应用：职业独门天赋 → 通用天赋 */
+function applyTalentChain(
+  effects: Partial<Attrs>,
+  profession: Profession | null,
+  talent: Talent | null,
+): Partial<Attrs> {
+  let out = effects;
+  if (profession) out = profession.signatureTalent.modify(out);
+  if (talent) out = talent.modify(out);
+  return out;
 }
 
 function checkEnding(
   attrs: Attrs,
   week: number,
+  profession: Profession | null,
   scores: Record<Track, number>,
   difficulty: Difficulty,
 ): Ending | null {
   const totalWeeks = DIFFICULTY_CONFIG[difficulty].weeks;
   const graduated = week > totalWeeks;
-  const top = topTrack(scores);
+  // topTrack 优先用入职职业；没选职业才退回 trackScores（兜底）
+  const top: Track = profession?.id ?? topTrackByScores(scores);
   for (const e of ENDINGS) {
     if (
       e.condition({
@@ -204,6 +217,18 @@ function checkEnding(
     }
   }
   return null;
+}
+
+function topTrackByScores(scores: Record<Track, number>): Track {
+  let best: Track = 'pm';
+  let bestVal = -Infinity;
+  (Object.keys(scores) as Track[]).forEach((k) => {
+    if (scores[k] > bestVal) {
+      bestVal = scores[k];
+      best = k;
+    }
+  });
+  return best;
 }
 
 export const useGame = create<Store>()(
@@ -225,11 +250,20 @@ export const useGame = create<Store>()(
       },
 
       pickDifficulty: (d) => {
-        // 难度选定 → 进入天赋选择
-        const opts = rollTalentOptions();
+        set({ difficulty: d, stage: 'choosing' });
+      },
+
+      pickProfession: (id) => {
+        const p = getProfessionById(id);
+        if (!p) return;
+        const tried = get().triedProfessions;
+        const nextTried = tried.includes(id) ? tried : [...tried, id];
         set({
-          difficulty: d,
-          talentOptions: opts,
+          profession: p,
+          attrs: { ...p.baseAttrs },
+          peakMoney: p.baseAttrs.money,
+          talentOptions: rollTalentOptions(),
+          triedProfessions: nextTried,
           stage: 'talent',
         });
       },
@@ -237,13 +271,14 @@ export const useGame = create<Store>()(
       pickTalent: (id) => {
         const t = getTalentById(id);
         if (!t) return;
+        const { profession, difficulty } = get();
+        if (!profession) return;
         const tried = get().triedTalents;
         const nextTried = tried.includes(id) ? tried : [...tried, id];
-        const evtOpts = rollEvents(get().difficulty, 1, []);
+        const evtOpts = rollEvents(profession.id, difficulty, 1, []);
         set({
           talent: t,
           triedTalents: nextTried,
-          attrs: { ...INITIAL_ATTRS },
           week: 1,
           trackScores: { ...INITIAL_TRACK_SCORES },
           eventOptions: evtOpts,
@@ -252,7 +287,6 @@ export const useGame = create<Store>()(
           lastEffects: null,
           ending: null,
           endingDesc: null,
-          peakMoney: INITIAL_ATTRS.money,
           usedEventIds: [],
           stage: 'playing',
         });
@@ -270,13 +304,22 @@ export const useGame = create<Store>()(
       },
 
       pickChoice: (idx) => {
-        const { currentEvent, attrs, week, trackScores, talent, difficulty, peakMoney } = get();
+        const {
+          currentEvent,
+          attrs,
+          week,
+          trackScores,
+          profession,
+          talent,
+          difficulty,
+          peakMoney,
+        } = get();
         if (!currentEvent) return;
         const choice: Choice | undefined = currentEvent.choices[idx];
         if (!choice) return;
 
-        // 天赋会调整原始 effects
-        const finalEffects = talent ? talent.modify(choice.effects) : choice.effects;
+        // 职业天赋 + 通用天赋 顺序加成
+        const finalEffects = applyTalentChain(choice.effects, profession, talent);
 
         const newAttrs = applyEffects(attrs, finalEffects);
         const newScores: Record<Track, number> = { ...trackScores };
@@ -286,7 +329,7 @@ export const useGame = create<Store>()(
           });
         }
 
-        const ending = checkEnding(newAttrs, week, newScores, difficulty);
+        const ending = checkEnding(newAttrs, week, profession, newScores, difficulty);
 
         set({
           attrs: newAttrs,
@@ -301,19 +344,19 @@ export const useGame = create<Store>()(
       },
 
       nextWeek: () => {
-        const { week, usedEventIds, attrs, trackScores, difficulty } = get();
+        const { week, usedEventIds, attrs, trackScores, difficulty, profession } = get();
+        if (!profession) return;
         const nextWeekNum = week + 1;
         const totalWeeks = DIFFICULTY_CONFIG[difficulty].weeks;
-        // 撑过实习期 → 触发毕业判定
         if (nextWeekNum > totalWeeks) {
-          const ending = checkEnding(attrs, nextWeekNum, trackScores, difficulty);
+          const ending = checkEnding(attrs, nextWeekNum, profession, trackScores, difficulty);
           if (ending) {
             set({ week: nextWeekNum });
             finalize(get, set, ending);
             return;
           }
         }
-        const opts = rollEvents(difficulty, nextWeekNum, usedEventIds);
+        const opts = rollEvents(profession.id, difficulty, nextWeekNum, usedEventIds);
         set({
           week: nextWeekNum,
           eventOptions: opts,
@@ -336,20 +379,20 @@ export const useGame = create<Store>()(
       toggleMute: () => set({ muted: !get().muted }),
     }),
     {
-      name: 'penguin-intern-v2',
+      name: 'penguin-intern-v3',
       partialize: (state): PersistedState => ({
         unlockedEndings: state.unlockedEndings,
         unlockedAchievements: state.unlockedAchievements,
         reincarnations: state.reincarnations,
         records: state.records,
         triedTalents: state.triedTalents,
+        triedProfessions: state.triedProfessions,
         muted: state.muted,
       }),
     },
   ),
 );
 
-/** 抽 3 个天赋作为开局选项 */
 function rollTalentOptions(): Talent[] {
   const arr = [...TALENTS];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -359,23 +402,21 @@ function rollTalentOptions(): Talent[] {
   return arr.slice(0, 3);
 }
 
-/** 结算 */
 function finalize(
   get: () => Store,
   set: (partial: Partial<Store>) => void,
   ending: Ending,
 ) {
   const s = get();
+  const profession = s.profession;
 
   let endingDesc = ending.desc;
-  if (ending.id === 'graduate_normal') {
-    const top = topTrack(s.trackScores);
-    const t = TRACKS[top];
-    endingDesc = `你顺利通过实习答辩，转正成为一只光荣的【${t.name}】${t.emoji}！${t.desc}`;
-  } else if (ending.id === 'graduate_top') {
-    const top = topTrack(s.trackScores);
-    const t = TRACKS[top];
-    endingDesc = `${ending.desc} 你最终被定级为【${t.name}】${t.emoji}，前途无量。`;
+  if (ending.id === 'graduate_normal' && profession) {
+    const t = TRACKS[profession.id];
+    endingDesc = `你顺利通过实习答辩，转正成为一只正式的【${t.name}】${t.emoji}！${t.desc}`;
+  } else if (ending.id === 'graduate_top' && profession) {
+    const t = TRACKS[profession.id];
+    endingDesc = `${ending.desc} 你以【${t.name}】${t.emoji}身份被定级为 SP，前途无量。`;
   }
 
   const unlockedEndings = s.unlockedEndings.includes(ending.id)
@@ -416,8 +457,10 @@ function finalize(
   )
     achieved.add('extended');
   if (s.peakMoney >= 20) achieved.add('rich');
-  const triedAll = TALENTS.every((t) => s.triedTalents.includes(t.id));
-  if (triedAll) achieved.add('allTalents');
+  const triedAllTalents = TALENTS.every((t) => s.triedTalents.includes(t.id));
+  if (triedAllTalents) achieved.add('allTalents');
+  const triedAllPros = PROFESSIONS.every((p) => s.triedProfessions.includes(p.id));
+  if (triedAllPros) achieved.add('allPros');
 
   set({
     stage: 'ended',
