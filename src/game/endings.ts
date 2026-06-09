@@ -56,8 +56,9 @@ export const ENDINGS: Ending[] = [
     emoji: '💎',
     image: '/images/event-reward.png',
     desc: '靠着股票 + 副业 + 期权，你提前实现财富自由，挥一挥衣袖去大理开了家咖啡馆。',
-    hint: '让存款累计到 25 以上。',
-    condition: ({ attrs }) => attrs.money >= 25,
+    hint: '标准版：让存款累计到 25 以上即可触发；完整版：必须撑满 24 周才触发。',
+    condition: ({ attrs, difficulty, graduated }) =>
+      attrs.money >= 25 && (difficulty === 'standard' || graduated),
   },
   {
     id: 'guru',
@@ -65,8 +66,9 @@ export const ENDINGS: Ending[] = [
     emoji: '🧠',
     image: '/images/event-reward.png',
     desc: '你成了业界 KOL，公众号 10w+，知乎大 V。鹅厂只是你简历上的一行字。',
-    hint: '智力突破 22。',
-    condition: ({ attrs }) => attrs.iq >= 22,
+    hint: '标准版：智力突破 22 即可触发；完整版：必须撑满 24 周才触发。',
+    condition: ({ attrs, difficulty, graduated }) =>
+      attrs.iq >= 22 && (difficulty === 'standard' || graduated),
   },
   {
     id: 'graduate_top',
