@@ -1,42 +1,54 @@
-// 实习生视角 - MVP 类型定义
+// 实习生视角 - 完整类型定义
 
 export type AttrKey = 'hp' | 'iq' | 'eq' | 'money' | 'mentor' | 'rank';
-// hp=体力 iq=智力 eq=情商 money=零花钱 mentor=导师好感 rank=转正进度
+// hp=体力 iq=智力 eq=情商 money=存款 mentor=导师好感 rank=转正进度
 
 export type Attrs = Record<AttrKey, number>;
 
-/** 5 条转正路线，决定结局走哪条 */
+/** 5 条转正路线 */
 export type Track = 'pm' | 'design' | 'dev' | 'op' | 'staff';
+
+/** 难度档位 */
+export type Difficulty = 'standard' | 'extended';
+
+/** 天赋：开局抽 3 选 1，影响整局事件加成 */
+export interface Talent {
+  id: string;
+  name: string;
+  emoji: string;
+  desc: string;
+  /**
+   * 加成函数：对选项原始 effects 做调整
+   * 例：学霸 → iq 类正向加成 +50%
+   */
+  modify: (effects: Partial<Attrs>) => Partial<Attrs>;
+}
 
 export interface Choice {
   text: string;
-  /** 选项前缀 emoji */
   emoji?: string;
   effects: Partial<Attrs>;
-  /** 选项倾向：影响最终走哪条转正路线 */
   trackBias?: Partial<Record<Track, number>>;
-  /** 选项后追加叙事 */
   outcome?: string;
 }
 
-/** 事件标签：用于顶部小徽章 */
 export interface EventTag {
   label: string;
   emoji: string;
-  /** Tailwind class，如 'bg-rose-100 text-rose-600' */
   color: string;
 }
 
 export interface GameEvent {
   id: string;
   tag: EventTag;
-  /** 事件配图，public/images/xxx.png */
   image: string;
   /** 触发的最小周数 */
   minWeek?: number;
-  /** 标题（粗） */
+  /** 触发的最大周数（用于晋升副本只在后期出现） */
+  maxWeek?: number;
+  /** 是否为晋升副本事件（仅完整版） */
+  extendedOnly?: boolean;
   title: string;
-  /** 副标小字 */
   subtitle?: string;
   choices: Choice[];
 }
@@ -45,21 +57,21 @@ export interface Ending {
   id: string;
   name: string;
   emoji: string;
-  /** 结局插画 */
   image?: string;
   desc: string;
   /** 触发条件 */
   condition: (ctx: EndingCtx) => boolean;
+  /** 触发提示，显示在图鉴未解锁状态 */
+  hint?: string;
 }
 
 export interface EndingCtx {
   attrs: Attrs;
   week: number;
-  /** 倾向最高的路线 */
   topTrack: Track;
   trackScores: Record<Track, number>;
-  /** 是否已撑满实习期 */
   graduated: boolean;
+  difficulty: Difficulty;
 }
 
 export interface Achievement {
@@ -75,5 +87,6 @@ export interface RunRecord {
   weeks: number;
   endingId: string;
   endingName: string;
+  difficulty: Difficulty;
   at: number;
 }

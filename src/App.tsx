@@ -3,6 +3,8 @@ import { useGame } from './game/store';
 import { ENDINGS, ACHIEVEMENTS } from './game/endings';
 import HomeScreen from './screens/HomeScreen';
 import NamingScreen from './screens/NamingScreen';
+import DifficultyScreen from './screens/DifficultyScreen';
+import TalentScreen from './screens/TalentScreen';
 import PlayingScreen from './screens/PlayingScreen';
 import EndedScreen from './screens/EndedScreen';
 import CollectionModal from './components/CollectionModal';
@@ -22,6 +24,8 @@ export default function App() {
           <HomeScreen onOpenCollection={() => setShowCollection(true)} />
         )}
         {stage === 'naming' && <NamingScreen />}
+        {stage === 'difficulty' && <DifficultyScreen />}
+        {stage === 'talent' && <TalentScreen />}
         {stage === 'playing' && (
           <PlayingScreen onOpenCollection={() => setShowCollection(true)} />
         )}

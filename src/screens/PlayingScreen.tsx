@@ -2,6 +2,7 @@ import { useGame } from '../game/store';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import AttrPanel, { WeekIndicator } from '../components/AttrPanel';
+import { playSfx } from '../game/sfx';
 import type { Attrs, AttrKey } from '../game/types';
 
 interface Props {
@@ -10,14 +11,20 @@ interface Props {
 
 export default function PlayingScreen({ onOpenCollection }: Props) {
   const name = useGame((s) => s.name);
+  const talent = useGame((s) => s.talent);
   const attrs = useGame((s) => s.attrs);
   const week = useGame((s) => s.week);
+  const eventOptions = useGame((s) => s.eventOptions);
   const currentEvent = useGame((s) => s.currentEvent);
   const lastOutcome = useGame((s) => s.lastOutcome);
   const lastEffects = useGame((s) => s.lastEffects);
+  const difficulty = useGame((s) => s.difficulty);
+  const pickEvent = useGame((s) => s.pickEvent);
   const pickChoice = useGame((s) => s.pickChoice);
   const nextWeek = useGame((s) => s.nextWeek);
   const goHome = useGame((s) => s.goHome);
+  const muted = useGame((s) => s.muted);
+  const toggleMute = useGame((s) => s.toggleMute);
 
   return (
     <div className="space-y-3 animate-float-in">
@@ -33,24 +40,41 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               <span className="truncate text-sm font-semibold text-slate-800">
                 {name}
               </span>
               <span className="shrink-0 rounded-full bg-tx-blue/10 px-2 py-0.5 text-[10px] text-tx-blue">
                 实习鹅
               </span>
+              {talent && (
+                <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-700">
+                  {talent.emoji} {talent.name}
+                </span>
+              )}
             </div>
             <div className="mt-1.5">
-              <WeekIndicator week={week} />
+              <WeekIndicator
+                week={week}
+                totalWeeks={difficulty === 'extended' ? 24 : 12}
+              />
             </div>
           </div>
-          <button
-            onClick={onOpenCollection}
-            className="shrink-0 rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
-          >
-            图鉴
-          </button>
+          <div className="flex shrink-0 flex-col gap-1">
+            <button
+              onClick={toggleMute}
+              className="rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
+              title={muted ? '已静音' : '点击静音'}
+            >
+              {muted ? '🔇' : '🔊'}
+            </button>
+            <button
+              onClick={onOpenCollection}
+              className="rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
+            >
+              图鉴
+            </button>
+          </div>
         </div>
 
         <div className="mt-3">
@@ -58,10 +82,56 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
         </div>
       </Card>
 
-      {/* 事件 */}
-      {currentEvent ? (
+      {/* 三选一事件挑选 */}
+      {eventOptions.length > 0 && !currentEvent && (
+        <>
+          <Card>
+            <div className="text-center text-sm font-semibold text-slate-700">
+              ✨ 这周有 3 件事在等你，挑一件去面对
+            </div>
+            <p className="mt-1 text-center text-[11px] text-slate-500">
+              另外两件不会再回来，谨慎选择
+            </p>
+          </Card>
+
+          {eventOptions.map((e, i) => (
+            <button
+              key={e.id}
+              onClick={() => {
+                playSfx('click');
+                pickEvent(i);
+              }}
+              className="block w-full overflow-hidden rounded-2xl bg-white/85 text-left shadow-soft ring-1 ring-white backdrop-blur-sm transition hover:-translate-y-[1px] hover:ring-tx-blue/40"
+            >
+              <div className="flex gap-3 p-3">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#9ed8ee]">
+                  <img
+                    src={e.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${e.tag.color}`}
+                  >
+                    <span>{e.tag.emoji}</span>
+                    <span>{e.tag.label}</span>
+                  </span>
+                  <div className="mt-1.5 line-clamp-3 text-[13px] font-medium leading-snug text-slate-800">
+                    {e.title}
+                  </div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </>
+      )}
+
+      {/* 选中后的事件详情 */}
+      {currentEvent && (
         <Card key={currentEvent.id} className="animate-pop !p-0 overflow-hidden">
-          {/* 大插画 */}
           <div className="aspect-square w-full overflow-hidden bg-[#9ed8ee]">
             <img
               src={currentEvent.image}
@@ -72,7 +142,6 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
           </div>
 
           <div className="p-5">
-            {/* 标签徽章 */}
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${currentEvent.tag.color}`}
             >
@@ -80,7 +149,6 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
               <span>{currentEvent.tag.label}</span>
             </span>
 
-            {/* 标题 + 副标 */}
             <div className="mt-3 text-[15px] font-semibold leading-relaxed text-slate-800">
               {currentEvent.title}
             </div>
@@ -90,12 +158,14 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
               </div>
             )}
 
-            {/* 选项 */}
             <div className="mt-4 flex flex-col gap-2">
               {currentEvent.choices.map((c, i) => (
                 <button
                   key={i}
-                  onClick={() => pickChoice(i)}
+                  onClick={() => {
+                    playSfx('click');
+                    pickChoice(i);
+                  }}
                   className="rounded-xl bg-white px-3 py-3 text-left text-sm text-slate-700 ring-1 ring-slate-200 transition hover:-translate-y-[1px] hover:ring-tx-blue/40 active:scale-[0.99]"
                 >
                   {c.emoji && <span className="mr-1.5">{c.emoji}</span>}
@@ -105,7 +175,10 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
             </div>
           </div>
         </Card>
-      ) : (
+      )}
+
+      {/* 过渡卡：刚做完选择，未刷新下一周 */}
+      {!currentEvent && eventOptions.length === 0 && (
         <Card className="animate-pop">
           <div className="text-center text-[11px] tracking-widest text-slate-400">
             本回合影响
@@ -121,7 +194,14 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
             一周过去了……
           </div>
           <div className="mt-3 flex flex-col gap-2">
-            <Button onClick={nextWeek}>进入下一周 →</Button>
+            <Button
+              onClick={() => {
+                playSfx('click');
+                nextWeek();
+              }}
+            >
+              进入下一周 →
+            </Button>
             <Button variant="ghost" onClick={goHome}>
               结束这一世（回首页）
             </Button>
@@ -136,12 +216,11 @@ const EFFECT_META: Record<AttrKey, { label: string; emoji: string }> = {
   hp: { label: '体力', emoji: '❤️' },
   iq: { label: '智力', emoji: '🧠' },
   eq: { label: '情商', emoji: '💬' },
-  money: { label: '零花', emoji: '💰' },
+  money: { label: '存款', emoji: '💰' },
   mentor: { label: '导师好感', emoji: '🧑‍🏫' },
   rank: { label: '转正进度', emoji: '🎯' },
 };
 
-/** 把本回合属性变化做成大号醒目卡片 */
 function EffectsSummary({ effects }: { effects: Partial<Attrs> | null }) {
   if (!effects) {
     return (

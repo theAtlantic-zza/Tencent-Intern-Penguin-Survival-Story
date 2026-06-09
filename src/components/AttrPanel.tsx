@@ -1,11 +1,12 @@
 import type { Attrs, AttrKey } from '../game/types';
-import { INTERN_WEEKS } from '../game/tracks';
+
+const INTERN_WEEKS = 12;
 
 const META: Record<AttrKey, { label: string; emoji: string; color: string; cap: number }> = {
   hp: { label: '体力', emoji: '❤️', color: 'bg-rose-400', cap: 12 },
   iq: { label: '智力', emoji: '🧠', color: 'bg-violet-400', cap: 15 },
   eq: { label: '情商', emoji: '💬', color: 'bg-amber-400', cap: 12 },
-  money: { label: '零花', emoji: '💰', color: 'bg-emerald-400', cap: 12 },
+  money: { label: '存款', emoji: '💰', color: 'bg-emerald-400', cap: 20 },
   mentor: { label: '导师好感', emoji: '🧑‍🏫', color: 'bg-sky-400', cap: 10 },
   rank: { label: '转正进度', emoji: '🎯', color: 'bg-tx-blue', cap: 20 },
 };
@@ -103,15 +104,21 @@ function Bar({ k, val, d, wide }: BarProps) {
   );
 }
 
-export function WeekIndicator({ week }: { week: number }) {
-  const safeWeek = Math.min(week, INTERN_WEEKS);
-  const pct = (safeWeek / INTERN_WEEKS) * 100;
+export function WeekIndicator({
+  week,
+  totalWeeks = INTERN_WEEKS,
+}: {
+  week: number;
+  totalWeeks?: number;
+}) {
+  const safeWeek = Math.min(week, totalWeeks);
+  const pct = (safeWeek / totalWeeks) * 100;
   return (
     <div>
       <div className="flex items-center justify-between text-[11px]">
         <span className="text-slate-500">实习倒计时</span>
         <span className="font-semibold text-slate-700">
-          第 {safeWeek} / {INTERN_WEEKS} 周
+          第 {safeWeek} / {totalWeeks} 周
         </span>
       </div>
       <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">

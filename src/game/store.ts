@@ -2,41 +2,53 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { EVENTS } from './events';
 import { ENDINGS, ACHIEVEMENTS } from './endings';
-import { INTERN_WEEKS, TRACKS } from './tracks';
+import { DIFFICULTY_CONFIG, TRACKS } from './tracks';
+import { getTalentById, TALENTS } from './talents';
 import type {
   Achievement,
   Attrs,
   AttrKey,
   Choice,
+  Difficulty,
   Ending,
   GameEvent,
   RunRecord,
+  Talent,
   Track,
 } from './types';
 
-export type Stage = 'home' | 'naming' | 'playing' | 'ended';
+export type Stage = 'home' | 'naming' | 'difficulty' | 'talent' | 'playing' | 'ended';
 
 interface PersistedState {
   unlockedEndings: string[];
   unlockedAchievements: string[];
   reincarnations: number;
   records: RunRecord[];
+  triedTalents: string[];
+  /** 总开关：静音 */
+  muted: boolean;
 }
 
 interface RuntimeState {
   stage: Stage;
   name: string;
+  difficulty: Difficulty;
+  talent: Talent | null;
+  /** 开局抽到的 3 个候选天赋 */
+  talentOptions: Talent[];
   attrs: Attrs;
   week: number;
-  /** 5 条转正路线累计分数 */
   trackScores: Record<Track, number>;
+  /** 当前周三选一候选事件 */
+  eventOptions: GameEvent[];
+  /** 已选中正在面对的事件 */
   currentEvent: GameEvent | null;
   lastOutcome: string | null;
   lastEffects: Partial<Attrs> | null;
   ending: Ending | null;
-  /** 结局描述（可能含动态拼接的转正路线） */
   endingDesc: string | null;
-  /** 当前轮回内已用过的事件 id */
+  /** 一局内的最高存款，用于成就判定 */
+  peakMoney: number;
   usedEventIds: string[];
 }
 
@@ -45,10 +57,15 @@ interface Actions {
   startNaming: () => void;
   setName: (name: string) => void;
   confirmName: (name: string) => void;
+  pickDifficulty: (d: Difficulty) => void;
+  pickTalent: (id: string) => void;
+  /** 玩家从 3 个候选中选一个事件去面对 */
+  pickEvent: (idx: number) => void;
   pickChoice: (idx: number) => void;
   nextWeek: () => void;
   reincarnate: () => void;
   clearRecords: () => void;
+  toggleMute: () => void;
 }
 
 type Store = RuntimeState & PersistedState & Actions;
@@ -73,14 +90,19 @@ const INITIAL_TRACK_SCORES: Record<Track, number> = {
 const initialRuntime: RuntimeState = {
   stage: 'home',
   name: '',
+  difficulty: 'standard',
+  talent: null,
+  talentOptions: [],
   attrs: { ...INITIAL_ATTRS },
   week: 1,
   trackScores: { ...INITIAL_TRACK_SCORES },
+  eventOptions: [],
   currentEvent: null,
   lastOutcome: null,
   lastEffects: null,
   ending: null,
   endingDesc: null,
+  peakMoney: 5,
   usedEventIds: [],
 };
 
@@ -89,17 +111,53 @@ const initialPersisted: PersistedState = {
   unlockedAchievements: [],
   reincarnations: 0,
   records: [],
+  triedTalents: [],
+  muted: false,
 };
 
-function pickRandomEvent(week: number, usedIds: string[]): GameEvent {
+/** 三选一事件池（不放重复 id，且尽量从不同 tag 抽，体验更丰富） */
+function rollEvents(
+  difficulty: Difficulty,
+  week: number,
+  usedIds: string[],
+): GameEvent[] {
   const pool = EVENTS.filter((e) => {
     if (e.minWeek && week < e.minWeek) return false;
+    if (e.maxWeek && week > e.maxWeek) return false;
+    if (e.extendedOnly && difficulty !== 'extended') return false;
     return !usedIds.includes(e.id);
   });
-  if (pool.length === 0) {
-    return EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  // 全用过则放宽限制（只过滤 minWeek 和 difficulty）
+  const fallback =
+    pool.length >= 3
+      ? pool
+      : EVENTS.filter((e) => {
+          if (e.minWeek && week < e.minWeek) return false;
+          if (e.extendedOnly && difficulty !== 'extended') return false;
+          return true;
+        });
+  // Fisher-Yates 抽 3 个不同 tag 的事件
+  const shuffled = [...fallback];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return pool[Math.floor(Math.random() * pool.length)];
+  const out: GameEvent[] = [];
+  const seenTags = new Set<string>();
+  for (const e of shuffled) {
+    if (out.length >= 3) break;
+    if (seenTags.has(e.tag.label)) continue;
+    out.push(e);
+    seenTags.add(e.tag.label);
+  }
+  // tag 不够 3 种时直接补
+  if (out.length < 3) {
+    for (const e of shuffled) {
+      if (out.length >= 3) break;
+      if (!out.includes(e)) out.push(e);
+    }
+  }
+  return out.slice(0, 3);
 }
 
 function applyEffects(attrs: Attrs, effects: Partial<Attrs>): Attrs {
@@ -126,8 +184,10 @@ function checkEnding(
   attrs: Attrs,
   week: number,
   scores: Record<Track, number>,
+  difficulty: Difficulty,
 ): Ending | null {
-  const graduated = week > INTERN_WEEKS;
+  const totalWeeks = DIFFICULTY_CONFIG[difficulty].weeks;
+  const graduated = week > totalWeeks;
   const top = topTrack(scores);
   for (const e of ENDINGS) {
     if (
@@ -137,6 +197,7 @@ function checkEnding(
         topTrack: top,
         trackScores: scores,
         graduated,
+        difficulty,
       })
     ) {
       return e;
@@ -160,29 +221,64 @@ export const useGame = create<Store>()(
       confirmName: (name) => {
         const trimmed = name.trim();
         if (!trimmed) return;
-        const firstEvent = pickRandomEvent(1, []);
+        set({ name: trimmed, stage: 'difficulty' });
+      },
+
+      pickDifficulty: (d) => {
+        // 难度选定 → 进入天赋选择
+        const opts = rollTalentOptions();
         set({
-          name: trimmed,
-          stage: 'playing',
+          difficulty: d,
+          talentOptions: opts,
+          stage: 'talent',
+        });
+      },
+
+      pickTalent: (id) => {
+        const t = getTalentById(id);
+        if (!t) return;
+        const tried = get().triedTalents;
+        const nextTried = tried.includes(id) ? tried : [...tried, id];
+        const evtOpts = rollEvents(get().difficulty, 1, []);
+        set({
+          talent: t,
+          triedTalents: nextTried,
           attrs: { ...INITIAL_ATTRS },
           week: 1,
           trackScores: { ...INITIAL_TRACK_SCORES },
-          currentEvent: firstEvent,
+          eventOptions: evtOpts,
+          currentEvent: null,
           lastOutcome: null,
           lastEffects: null,
           ending: null,
           endingDesc: null,
-          usedEventIds: [firstEvent.id],
+          peakMoney: INITIAL_ATTRS.money,
+          usedEventIds: [],
+          stage: 'playing',
+        });
+      },
+
+      pickEvent: (idx) => {
+        const { eventOptions } = get();
+        const evt = eventOptions[idx];
+        if (!evt) return;
+        set({
+          currentEvent: evt,
+          eventOptions: [],
+          usedEventIds: [...get().usedEventIds, evt.id],
         });
       },
 
       pickChoice: (idx) => {
-        const { currentEvent, attrs, week, trackScores } = get();
+        const { currentEvent, attrs, week, trackScores, talent, difficulty, peakMoney } = get();
         if (!currentEvent) return;
         const choice: Choice | undefined = currentEvent.choices[idx];
         if (!choice) return;
 
-        const newAttrs = applyEffects(attrs, choice.effects);
+        // 天赋会调整原始 effects
+        const finalEffects = talent ? talent.modify(choice.effects) : choice.effects;
+
+        const newAttrs = applyEffects(attrs, finalEffects);
         const newScores: Record<Track, number> = { ...trackScores };
         if (choice.trackBias) {
           (Object.keys(choice.trackBias) as Track[]).forEach((k) => {
@@ -190,38 +286,40 @@ export const useGame = create<Store>()(
           });
         }
 
-        const ending = checkEnding(newAttrs, week, newScores);
+        const ending = checkEnding(newAttrs, week, newScores, difficulty);
 
         set({
           attrs: newAttrs,
           trackScores: newScores,
-          lastEffects: choice.effects,
+          lastEffects: finalEffects,
           lastOutcome: choice.outcome ?? null,
           currentEvent: null,
+          peakMoney: Math.max(peakMoney, newAttrs.money),
         });
 
         if (ending) finalize(get, set, ending);
       },
 
       nextWeek: () => {
-        const { week, usedEventIds, attrs, trackScores } = get();
+        const { week, usedEventIds, attrs, trackScores, difficulty } = get();
         const nextWeekNum = week + 1;
+        const totalWeeks = DIFFICULTY_CONFIG[difficulty].weeks;
         // 撑过实习期 → 触发毕业判定
-        if (nextWeekNum > INTERN_WEEKS) {
-          const ending = checkEnding(attrs, nextWeekNum, trackScores);
+        if (nextWeekNum > totalWeeks) {
+          const ending = checkEnding(attrs, nextWeekNum, trackScores, difficulty);
           if (ending) {
             set({ week: nextWeekNum });
             finalize(get, set, ending);
             return;
           }
         }
-        const evt = pickRandomEvent(nextWeekNum, usedEventIds);
+        const opts = rollEvents(difficulty, nextWeekNum, usedEventIds);
         set({
           week: nextWeekNum,
-          currentEvent: evt,
+          eventOptions: opts,
+          currentEvent: null,
           lastOutcome: null,
           lastEffects: null,
-          usedEventIds: [...usedEventIds, evt.id],
         });
       },
 
@@ -234,20 +332,34 @@ export const useGame = create<Store>()(
       },
 
       clearRecords: () => set({ records: [] }),
+
+      toggleMute: () => set({ muted: !get().muted }),
     }),
     {
-      name: 'penguin-intern-v1',
+      name: 'penguin-intern-v2',
       partialize: (state): PersistedState => ({
         unlockedEndings: state.unlockedEndings,
         unlockedAchievements: state.unlockedAchievements,
         reincarnations: state.reincarnations,
         records: state.records,
+        triedTalents: state.triedTalents,
+        muted: state.muted,
       }),
     },
   ),
 );
 
-/** 结算：写进度、解锁成就、保存记录、生成动态结局描述 */
+/** 抽 3 个天赋作为开局选项 */
+function rollTalentOptions(): Talent[] {
+  const arr = [...TALENTS];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 3);
+}
+
+/** 结算 */
 function finalize(
   get: () => Store,
   set: (partial: Partial<Store>) => void,
@@ -255,7 +367,6 @@ function finalize(
 ) {
   const s = get();
 
-  // 顺利转正：根据 topTrack 拼接动态描述
   let endingDesc = ending.desc;
   if (ending.id === 'graduate_normal') {
     const top = topTrack(s.trackScores);
@@ -267,22 +378,23 @@ function finalize(
     endingDesc = `${ending.desc} 你最终被定级为【${t.name}】${t.emoji}，前途无量。`;
   }
 
-  // 解锁结局
   const unlockedEndings = s.unlockedEndings.includes(ending.id)
     ? s.unlockedEndings
     : [...s.unlockedEndings, ending.id];
 
   const reincarnations = s.reincarnations + 1;
 
+  const totalWeeks = DIFFICULTY_CONFIG[s.difficulty].weeks;
   const newRecord: RunRecord = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name: s.name,
-    weeks: Math.min(s.week, INTERN_WEEKS),
+    weeks: Math.min(s.week, totalWeeks),
     endingId: ending.id,
     endingName: ending.name,
+    difficulty: s.difficulty,
     at: Date.now(),
   };
-  const records = [newRecord, ...s.records].slice(0, 20);
+  const records = [newRecord, ...s.records].slice(0, 30);
 
   // 成就
   const achieved = new Set(s.unlockedAchievements);
@@ -295,7 +407,17 @@ function finalize(
   )
     achieved.add('graduate');
   if (s.week < 5) achieved.add('speedrun');
-  if (unlockedEndings.length >= 3) achieved.add('collector');
+  if (unlockedEndings.length >= 5) achieved.add('collector');
+  if (
+    s.difficulty === 'extended' &&
+    (ending.id === 'graduate_top' ||
+      ending.id === 'graduate_normal' ||
+      ending.id === 'graduate_fail')
+  )
+    achieved.add('extended');
+  if (s.peakMoney >= 20) achieved.add('rich');
+  const triedAll = TALENTS.every((t) => s.triedTalents.includes(t.id));
+  if (triedAll) achieved.add('allTalents');
 
   set({
     stage: 'ended',

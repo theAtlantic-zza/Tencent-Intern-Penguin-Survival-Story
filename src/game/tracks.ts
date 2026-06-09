@@ -1,6 +1,5 @@
-import type { Track } from './types';
+import type { Difficulty, Track } from './types';
 
-/** 5 条未来路线（实习成果方向） */
 export const TRACKS: Record<Track, { name: string; emoji: string; desc: string }> = {
   pm: {
     name: '产品鹅',
@@ -29,5 +28,23 @@ export const TRACKS: Record<Track, { name: string; emoji: string; desc: string }
   },
 };
 
-/** 实习总周数（实习期满 = 撑过 12 周） */
-export const INTERN_WEEKS = 12;
+/** 难度配置 */
+export const DIFFICULTY_CONFIG: Record<
+  Difficulty,
+  { name: string; emoji: string; weeks: number; desc: string; subtitle: string }
+> = {
+  standard: {
+    name: '标准实习',
+    emoji: '🐧',
+    weeks: 12,
+    desc: '12 周完整实习期，体验完整剧情线。',
+    subtitle: '推荐第一次玩',
+  },
+  extended: {
+    name: '完整鹅生',
+    emoji: '🏆',
+    weeks: 24,
+    desc: '24 周长线挑战，第 13 周后开启「晋升副本」事件，硬度翻倍。',
+    subtitle: '高玩挑战',
+  },
+};
