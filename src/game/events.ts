@@ -1585,7 +1585,7 @@ export const EVENTS: GameEvent[] = [
     id: 'pm_prd_war',
     professionId: 'pm',
     tag: TAG.work,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 2,
     title: '研发同事看着你的 PRD 直接皱眉："这个交互我做不出来。"',
     subtitle: '会议室空气凝固，所有人看着你。',
@@ -1640,7 +1640,7 @@ export const EVENTS: GameEvent[] = [
     id: 'pm_priority_war',
     professionId: 'pm',
     tag: TAG.boss,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 5,
     title: '老板半夜发消息：明天评审会前把这 3 个需求优先级排出来。',
     choices: [
@@ -1690,7 +1690,7 @@ export const EVENTS: GameEvent[] = [
     id: 'pm_stakeholder',
     professionId: 'pm',
     tag: TAG.social,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 6,
     title: '隔壁组的 PM 想"借用"你正在跟的需求挂他名下。',
     choices: [
@@ -1766,7 +1766,7 @@ export const EVENTS: GameEvent[] = [
     id: 'design_prototype_review',
     professionId: 'design',
     tag: TAG.mentor,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 6,
     title: '总监评审你的原型："这个交互不够 surprise。"',
     choices: [
@@ -1791,7 +1791,7 @@ export const EVENTS: GameEvent[] = [
     id: 'design_ai_generate',
     professionId: 'design',
     tag: TAG.trap,
-    image: '/images/event-coffee.png',
+    image: '/images/event-canteen.png',
     minWeek: 5,
     title: '同事建议你用 AI 直接生成所有 banner。',
     choices: [
@@ -1943,7 +1943,7 @@ export const EVENTS: GameEvent[] = [
     id: 'dev_review_war',
     professionId: 'dev',
     tag: TAG.social,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 5,
     title: '资深同事 review 你的代码，留了 47 条评论。',
     choices: [
@@ -2095,7 +2095,7 @@ export const EVENTS: GameEvent[] = [
     id: 'staff_policy_change',
     professionId: 'staff',
     tag: TAG.work,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 3,
     title: '总部下发新政策，需要你 24 小时内传达到各部门。',
     choices: [
@@ -2145,7 +2145,7 @@ export const EVENTS: GameEvent[] = [
     id: 'staff_layoff_rumor',
     professionId: 'staff',
     tag: TAG.social,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 6,
     title: '同事偷偷问你："听说要裁员？你内部消息多……"',
     choices: [
@@ -2170,7 +2170,7 @@ export const EVENTS: GameEvent[] = [
     id: 'staff_budget_cut',
     professionId: 'staff',
     tag: TAG.boss,
-    image: '/images/event-meeting.png',
+    image: '/images/event-confused.png',
     minWeek: 6,
     title: '财务通知：你部门的实习生预算被砍了 40%。',
     choices: [
@@ -2195,7 +2195,7 @@ export const EVENTS: GameEvent[] = [
     id: 'staff_gossip_lord',
     professionId: 'staff',
     tag: TAG.social,
-    image: '/images/event-coffee.png',
+    image: '/images/event-canteen.png',
     minWeek: 4,
     title: '茶水间偶遇高管，聊起来发现人对你印象不错。',
     choices: [
