@@ -5,6 +5,8 @@ import { ENDINGS, ACHIEVEMENTS } from './endings';
 import { DIFFICULTY_CONFIG, TRACKS } from './tracks';
 import { getTalentById, TALENTS } from './talents';
 import { getProfessionById, PROFESSIONS } from './professions';
+import { getMentorById, MENTORS } from './mentors';
+import type { Mentor } from './mentors';
 import type { Profession } from './professions';
 import type {
   Achievement,
@@ -24,8 +26,10 @@ export type Stage =
   | 'naming'
   | 'difficulty'
   | 'choosing'
+  | 'mentor'
   | 'talent'
   | 'playing'
+  | 'report'
   | 'ended';
 
 interface PersistedState {
@@ -36,6 +40,8 @@ interface PersistedState {
   triedTalents: string[];
   /** 体验过的职业 id */
   triedProfessions: string[];
+  /** 体验过的导师 id */
+  triedMentors: string[];
   muted: boolean;
 }
 
@@ -45,6 +51,8 @@ interface RuntimeState {
   difficulty: Difficulty;
   /** 入职职业 */
   profession: Profession | null;
+  /** 实习导师 */
+  mentor: Mentor | null;
   /** 通用天赋（3 选 1） */
   talent: Talent | null;
   talentOptions: Talent[];
@@ -60,6 +68,12 @@ interface RuntimeState {
   endingDesc: string | null;
   peakMoney: number;
   usedEventIds: string[];
+  /** 月度复盘：上一次复盘时的属性快照（用来算 delta） */
+  lastReportAttrs: Attrs;
+  /** 月度复盘：累计触发的事件标题（用于复盘列表） */
+  monthEventTitles: string[];
+  /** 月度复盘关闭后展示的"新月份开始"过渡卡 flag */
+  showMonthIntro: boolean;
 }
 
 interface Actions {
@@ -69,10 +83,13 @@ interface Actions {
   confirmName: (name: string) => void;
   pickDifficulty: (d: Difficulty) => void;
   pickProfession: (id: string) => void;
+  pickMentor: (id: string) => void;
   pickTalent: (id: string) => void;
   pickEvent: (idx: number) => void;
   pickChoice: (idx: number) => void;
   nextWeek: () => void;
+  closeMonthlyReport: () => void;
+  dismissMonthIntro: () => void;
   reincarnate: () => void;
   clearRecords: () => void;
   toggleMute: () => void;
@@ -93,6 +110,7 @@ const initialRuntime: RuntimeState = {
   name: '',
   difficulty: 'standard',
   profession: null,
+  mentor: null,
   talent: null,
   talentOptions: [],
   attrs: { hp: 8, iq: 5, eq: 5, money: 5, mentor: 0, rank: 0 },
@@ -106,6 +124,9 @@ const initialRuntime: RuntimeState = {
   endingDesc: null,
   peakMoney: 5,
   usedEventIds: [],
+  lastReportAttrs: { hp: 8, iq: 5, eq: 5, money: 5, mentor: 0, rank: 0 },
+  monthEventTitles: [],
+  showMonthIntro: false,
 };
 
 const initialPersisted: PersistedState = {
@@ -115,6 +136,7 @@ const initialPersisted: PersistedState = {
   records: [],
   triedTalents: [],
   triedProfessions: [],
+  triedMentors: [],
   muted: false,
 };
 
@@ -179,14 +201,32 @@ function applyEffects(attrs: Attrs, effects: Partial<Attrs>): Attrs {
   return next;
 }
 
-/** 顺序应用：职业独门天赋 → 通用天赋 */
+function mergeEffects(
+  a: Partial<Attrs> | null,
+  b: Partial<Attrs> | null,
+): Partial<Attrs> | null {
+  if (!a && !b) return null;
+  const out: Partial<Attrs> = {};
+  const keys = new Set([
+    ...Object.keys(a ?? {}),
+    ...Object.keys(b ?? {}),
+  ]) as Set<AttrKey>;
+  keys.forEach((k) => {
+    out[k] = (a?.[k] ?? 0) + (b?.[k] ?? 0);
+  });
+  return out;
+}
+
+/** 顺序应用：职业独门天赋 → 导师 → 通用天赋 */
 function applyTalentChain(
   effects: Partial<Attrs>,
   profession: Profession | null,
+  mentor: Mentor | null,
   talent: Talent | null,
 ): Partial<Attrs> {
   let out = effects;
   if (profession) out = profession.signatureTalent.modify(out);
+  if (mentor) out = mentor.modify(out);
   if (talent) out = talent.modify(out);
   return out;
 }
@@ -262,8 +302,20 @@ export const useGame = create<Store>()(
           profession: p,
           attrs: { ...p.baseAttrs },
           peakMoney: p.baseAttrs.money,
-          talentOptions: rollTalentOptions(),
           triedProfessions: nextTried,
+          stage: 'mentor',
+        });
+      },
+
+      pickMentor: (id) => {
+        const m = getMentorById(id);
+        if (!m) return;
+        const tried = get().triedMentors;
+        const nextTried = tried.includes(id) ? tried : [...tried, id];
+        set({
+          mentor: m,
+          triedMentors: nextTried,
+          talentOptions: rollTalentOptions(),
           stage: 'talent',
         });
       },
@@ -271,7 +323,7 @@ export const useGame = create<Store>()(
       pickTalent: (id) => {
         const t = getTalentById(id);
         if (!t) return;
-        const { profession, difficulty } = get();
+        const { profession, difficulty, attrs } = get();
         if (!profession) return;
         const tried = get().triedTalents;
         const nextTried = tried.includes(id) ? tried : [...tried, id];
@@ -288,18 +340,21 @@ export const useGame = create<Store>()(
           ending: null,
           endingDesc: null,
           usedEventIds: [],
+          lastReportAttrs: { ...attrs },
+          monthEventTitles: [],
           stage: 'playing',
         });
       },
 
       pickEvent: (idx) => {
-        const { eventOptions } = get();
+        const { eventOptions, monthEventTitles } = get();
         const evt = eventOptions[idx];
         if (!evt) return;
         set({
           currentEvent: evt,
           eventOptions: [],
           usedEventIds: [...get().usedEventIds, evt.id],
+          monthEventTitles: [...monthEventTitles, evt.title],
         });
       },
 
@@ -310,6 +365,7 @@ export const useGame = create<Store>()(
           week,
           trackScores,
           profession,
+          mentor,
           talent,
           difficulty,
           peakMoney,
@@ -318,8 +374,25 @@ export const useGame = create<Store>()(
         const choice: Choice | undefined = currentEvent.choices[idx];
         if (!choice) return;
 
-        // 职业天赋 + 通用天赋 顺序加成
-        const finalEffects = applyTalentChain(choice.effects, profession, talent);
+        // 处理高风险选项的掷骰子
+        let actualEffects: Partial<Attrs> = choice.effects;
+        let actualOutcome: string | null = choice.outcome ?? null;
+        let forcedEnding: Ending | null = null;
+
+        if (choice.risk) {
+          const roll = Math.random();
+          if (roll >= choice.risk.chance) {
+            actualEffects = choice.risk.fallbackEffects;
+            actualOutcome = choice.risk.fallbackOutcome;
+            if (choice.risk.fatalEndingId) {
+              const e = ENDINGS.find((x) => x.id === choice.risk!.fatalEndingId);
+              if (e) forcedEnding = e;
+            }
+          }
+        }
+
+        // 职业天赋 → 导师 → 通用天赋
+        const finalEffects = applyTalentChain(actualEffects, profession, mentor, talent);
 
         const newAttrs = applyEffects(attrs, finalEffects);
         const newScores: Record<Track, number> = { ...trackScores };
@@ -329,13 +402,14 @@ export const useGame = create<Store>()(
           });
         }
 
-        const ending = checkEnding(newAttrs, week, profession, newScores, difficulty);
+        const ending =
+          forcedEnding ?? checkEnding(newAttrs, week, profession, newScores, difficulty);
 
         set({
           attrs: newAttrs,
           trackScores: newScores,
           lastEffects: finalEffects,
-          lastOutcome: choice.outcome ?? null,
+          lastOutcome: actualOutcome,
           currentEvent: null,
           peakMoney: Math.max(peakMoney, newAttrs.money),
         });
@@ -344,26 +418,91 @@ export const useGame = create<Store>()(
       },
 
       nextWeek: () => {
-        const { week, usedEventIds, attrs, trackScores, difficulty, profession } = get();
+        const {
+          week,
+          usedEventIds,
+          attrs,
+          trackScores,
+          difficulty,
+          profession,
+          mentor,
+        } = get();
         if (!profession) return;
         const nextWeekNum = week + 1;
         const totalWeeks = DIFFICULTY_CONFIG[difficulty].weeks;
+
+        // 触发职业被动 + 导师 tick
+        const passiveFromPro = profession.passive.tick({
+          week: nextWeekNum,
+          attrs,
+        });
+        const passiveFromMentor = mentor
+          ? mentor.tick({ week: nextWeekNum, attrs })
+          : null;
+        const merged: Partial<Attrs> | null =
+          passiveFromPro || passiveFromMentor
+            ? mergeEffects(passiveFromPro, passiveFromMentor)
+            : null;
+        const attrsAfterPassive = merged ? applyEffects(attrs, merged) : attrs;
+
         if (nextWeekNum > totalWeeks) {
-          const ending = checkEnding(attrs, nextWeekNum, profession, trackScores, difficulty);
+          const ending = checkEnding(
+            attrsAfterPassive,
+            nextWeekNum,
+            profession,
+            trackScores,
+            difficulty,
+          );
           if (ending) {
-            set({ week: nextWeekNum });
+            set({ week: nextWeekNum, attrs: attrsAfterPassive });
             finalize(get, set, ending);
             return;
           }
         }
+
+        // 月度复盘：每 4 周触发一次（在 week=5/9/13/... 进入时）
+        const shouldShowReport =
+          nextWeekNum > 1 && (nextWeekNum - 1) % 4 === 0 && nextWeekNum <= totalWeeks;
+
         const opts = rollEvents(profession.id, difficulty, nextWeekNum, usedEventIds);
+        if (shouldShowReport) {
+          set({
+            week: nextWeekNum,
+            attrs: attrsAfterPassive,
+            eventOptions: opts,
+            currentEvent: null,
+            lastOutcome: null,
+            lastEffects: null,
+            stage: 'report',
+          });
+        } else {
+          set({
+            week: nextWeekNum,
+            attrs: attrsAfterPassive,
+            eventOptions: opts,
+            currentEvent: null,
+            lastOutcome: merged
+              ? `本周自动结算${profession.passive.name ? `【${profession.passive.name}】` : ''}${mentor && passiveFromMentor ? `+【${mentor.name}】` : ''}`
+              : null,
+            lastEffects: merged ?? null,
+          });
+        }
+      },
+
+      closeMonthlyReport: () => {
+        const { attrs } = get();
         set({
-          week: nextWeekNum,
-          eventOptions: opts,
-          currentEvent: null,
+          stage: 'playing',
+          lastReportAttrs: { ...attrs },
+          monthEventTitles: [],
           lastOutcome: null,
           lastEffects: null,
+          showMonthIntro: true,
         });
+      },
+
+      dismissMonthIntro: () => {
+        set({ showMonthIntro: false });
       },
 
       reincarnate: () => {
@@ -379,7 +518,7 @@ export const useGame = create<Store>()(
       toggleMute: () => set({ muted: !get().muted }),
     }),
     {
-      name: 'penguin-intern-v3',
+      name: 'penguin-intern-v4',
       partialize: (state): PersistedState => ({
         unlockedEndings: state.unlockedEndings,
         unlockedAchievements: state.unlockedAchievements,
@@ -387,6 +526,7 @@ export const useGame = create<Store>()(
         records: state.records,
         triedTalents: state.triedTalents,
         triedProfessions: state.triedProfessions,
+        triedMentors: state.triedMentors,
         muted: state.muted,
       }),
     },
@@ -448,7 +588,7 @@ function finalize(
   )
     achieved.add('graduate');
   if (s.week < 5) achieved.add('speedrun');
-  if (unlockedEndings.length >= 5) achieved.add('collector');
+  if (unlockedEndings.length >= 8) achieved.add('collector');
   if (
     s.difficulty === 'extended' &&
     (ending.id === 'graduate_top' ||
@@ -461,6 +601,8 @@ function finalize(
   if (triedAllTalents) achieved.add('allTalents');
   const triedAllPros = PROFESSIONS.every((p) => s.triedProfessions.includes(p.id));
   if (triedAllPros) achieved.add('allPros');
+  const triedAllMentors = MENTORS.every((m) => s.triedMentors.includes(m.id));
+  if (triedAllMentors) achieved.add('allMentors');
 
   set({
     stage: 'ended',

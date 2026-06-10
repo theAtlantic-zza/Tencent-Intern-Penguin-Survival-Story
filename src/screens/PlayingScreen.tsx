@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useGame } from '../game/store';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -13,6 +14,7 @@ interface Props {
 export default function PlayingScreen({ onOpenCollection }: Props) {
   const name = useGame((s) => s.name);
   const profession = useGame((s) => s.profession);
+  const mentor = useGame((s) => s.mentor);
   const talent = useGame((s) => s.talent);
   const attrs = useGame((s) => s.attrs);
   const week = useGame((s) => s.week);
@@ -27,9 +29,39 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
   const goHome = useGame((s) => s.goHome);
   const muted = useGame((s) => s.muted);
   const toggleMute = useGame((s) => s.toggleMute);
+  const showMonthIntro = useGame((s) => s.showMonthIntro);
+  const dismissMonthIntro = useGame((s) => s.dismissMonthIntro);
+
+  // 月度过渡卡：1.8 秒后自动关闭
+  useEffect(() => {
+    if (!showMonthIntro) return;
+    const t = setTimeout(() => dismissMonthIntro(), 1800);
+    return () => clearTimeout(t);
+  }, [showMonthIntro, dismissMonthIntro]);
+
+  const monthIndex = Math.floor((week - 1) / 4) + 1;
 
   return (
-    <div className="space-y-3 animate-float-in">
+    <div className="relative space-y-3 animate-float-in">
+      {/* 月度过渡卡覆盖 */}
+      {showMonthIntro && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-pop"
+          onClick={dismissMonthIntro}
+        >
+          <div className="rounded-3xl bg-white px-10 py-8 text-center shadow-2xl ring-1 ring-tx-blue/30">
+            <div className="text-[10px] tracking-[0.4em] text-tx-blue/70">
+              CHAPTER {monthIndex}
+            </div>
+            <div className="mt-3 text-3xl font-bold text-slate-800">
+              📅 第 {monthIndex} 个月
+            </div>
+            <div className="mt-2 text-sm text-slate-500">新的一个月开始了……</div>
+            <div className="mt-4 text-[10px] text-slate-400">点击屏幕跳过</div>
+          </div>
+        </div>
+      )}
+
       {/* 角色头条 */}
       <Card>
         <div className="flex items-center gap-3">
@@ -47,11 +79,27 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
                 {name}
               </span>
               <span className="shrink-0 rounded-full bg-tx-blue/10 px-2 py-0.5 text-[10px] text-tx-blue">
-                {profession ? `${profession.emoji} 实习${profession.name.slice(0, 1)}` : '实习鹅'}
+                {profession ? `${profession.emoji} ${profession.name}` : '实习鹅'}
               </span>
+              {profession && (
+                <span
+                  className="shrink-0 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] text-violet-700"
+                  title={`【职业被动】${profession.passive.name}：${profession.passive.desc}`}
+                >
+                  ⚙️ {profession.passive.desc}
+                </span>
+              )}
               {profession && (
                 <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-700">
                   💎 {profession.signatureTalent.name}
+                </span>
+              )}
+              {mentor && (
+                <span
+                  className="shrink-0 rounded-full bg-fuchsia-100 px-2 py-0.5 text-[10px] text-fuchsia-700"
+                  title={`${mentor.vibe}：${mentor.desc}`}
+                >
+                  {mentor.emoji} 导师 {mentor.name}
                 </span>
               )}
               {talent && (
@@ -224,13 +272,14 @@ function OutcomeCard({
       {/* 属性变化 chip：横向紧凑排列 */}
       {entries.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {entries.map(({ k, v }) => {
+          {entries.map(({ k, v }, i) => {
             const meta = EFFECT_META[k];
             const positive = v > 0;
             return (
               <span
                 key={k}
-                className={`inline-flex animate-pop items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
+                style={{ animationDelay: `${i * 80}ms` }}
+                className={`inline-flex animate-chip-pop items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
                   positive
                     ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
                     : 'bg-rose-50 text-rose-700 ring-rose-200'
@@ -322,10 +371,19 @@ function EventDetail({
                 if (!done) return;
                 onPick(i);
               }}
-              className="rounded-xl bg-white px-3 py-3 text-left text-sm text-slate-700 ring-1 ring-slate-200 transition hover:-translate-y-[1px] hover:ring-tx-blue/40 active:scale-[0.99]"
+              className={`rounded-xl px-3 py-3 text-left text-sm transition active:scale-[0.99] ${
+                c.risk
+                  ? 'bg-gradient-to-br from-rose-50 to-amber-50 text-rose-800 ring-1 ring-rose-300 hover:-translate-y-[1px] hover:ring-rose-400'
+                  : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:-translate-y-[1px] hover:ring-tx-blue/40'
+              }`}
             >
               {c.emoji && <span className="mr-1.5">{c.emoji}</span>}
               {c.text}
+              {c.risk && (
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-rose-200/60 px-2 py-0.5 text-[10px] font-semibold text-rose-700">
+                  🎲 高风险 · {Math.round(c.risk.chance * 100)}% 成功
+                </span>
+              )}
             </button>
           ))}
         </div>

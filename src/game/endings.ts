@@ -71,6 +71,60 @@ export const ENDINGS: Ending[] = [
       attrs.iq >= 22 && (difficulty === 'standard' || graduated),
   },
   {
+    id: 'side_hustle_king',
+    name: '副业大鹅',
+    emoji: '🪙',
+    image: '/images/event-reward.png',
+    desc: '主业摸鱼副业起飞。你白天在鹅厂划水，晚上做小红书博主、闲鱼倒卖、写公众号软文，副业月入五位数。鹅厂工牌？那是个免费工位。',
+    hint: '存款 ≥30 但其他几乎全崩。',
+    condition: ({ attrs }) =>
+      attrs.money >= 30 && attrs.iq <= 6 && attrs.eq <= 6 && attrs.rank <= 5,
+  },
+  {
+    id: 'mentor_pet',
+    name: '拍马屁界天花板',
+    emoji: '🎺',
+    image: '/images/event-reward.png',
+    desc: '你的导师爱你爱到把你写进周报。可惜组里其他人提到你只会说："那个跟在 leader 屁股后面的实习生啊。" 你成功靠一个人的好评通过了实习——但口碑死透了。',
+    hint: '撑满全程，导师好感 ≥15 但其余三项都很低。',
+    condition: ({ graduated, attrs }) =>
+      graduated && attrs.mentor >= 15 && attrs.iq <= 5 && attrs.eq <= 5 && attrs.money <= 3,
+  },
+  {
+    id: 'office_celeb',
+    name: '鹅厂内部网红',
+    emoji: '📸',
+    image: '/images/event-reward.png',
+    desc: '电梯里有人喊你名字，茶水间有人找你合影，全员大会上 CEO 都念出了你写的段子。你不是来实习的，你是来圈粉的。转正？太普通了，先去开个工位 vlog。',
+    hint: '撑满全程，情商 ≥18。',
+    condition: ({ graduated, attrs }) => graduated && attrs.eq >= 18,
+  },
+  {
+    id: 'desk_sleeper',
+    name: '工位睡神',
+    emoji: '😴',
+    image: '/images/event-confused.png',
+    desc: '你的工位长出了一种神秘的负压场——任何走近的人都会突然想去喝杯咖啡。你睡了 24 周，却把每个项目的核心逻辑都摸透了。同事们说："睡着也比我清醒强。"',
+    hint: '撑满全程，体力 ≤2 但智力 ≥15。',
+    condition: ({ graduated, attrs }) => graduated && attrs.hp <= 2 && attrs.iq >= 15,
+  },
+  {
+    id: 'just_one_of_them',
+    name: '同事的同事',
+    emoji: '🫥',
+    image: '/images/ending-graduate.png',
+    desc: '你转正了。在欢送会上有人小声问："这位是哪个组的？" 你勉强笑了笑——你也开始记不清自己是谁了。但至少，你成了一只光荣的鹅。',
+    hint: '撑满全程顺利转正，但所有属性都很平庸（无突出项）。',
+    condition: ({ graduated, attrs }) =>
+      graduated &&
+      attrs.rank >= 8 &&
+      attrs.iq < 12 &&
+      attrs.eq < 12 &&
+      attrs.money < 12 &&
+      attrs.mentor < 8 &&
+      attrs.hp < 12,
+  },
+  {
     id: 'graduate_top',
     name: '王牌实习生',
     emoji: '🏆',
@@ -105,9 +159,10 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'reincarnate_3', name: '反复横跳', emoji: '🔁', desc: '累计转生 3 次。' },
   { id: 'graduate', name: '转正成功', emoji: '🎓', desc: '撑满实习期并成功转正。' },
   { id: 'speedrun', name: '光速猝死', emoji: '⚡', desc: '在第 5 周之前结束游戏。' },
-  { id: 'collector', name: '结局收藏家', emoji: '🏆', desc: '解锁 5 个不同结局。' },
+  { id: 'collector', name: '结局收藏家', emoji: '🏆', desc: '解锁 8 个不同结局。' },
   { id: 'extended', name: '马拉松选手', emoji: '🏃', desc: '完整版 24 周通关一次。' },
   { id: 'rich', name: '小富即安', emoji: '💰', desc: '一局内存款达到 20 以上。' },
   { id: 'allTalents', name: '天赋全收集', emoji: '🌟', desc: '体验过全部 5 种天赋。' },
   { id: 'allPros', name: '五职归一', emoji: '🐧', desc: '体验过全部 5 个入职部门。' },
+  { id: 'allMentors', name: '导师全收集', emoji: '🧑‍🏫', desc: '跟过 4 位不同人设的导师。' },
 ];
