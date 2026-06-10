@@ -1,4 +1,4 @@
-<!-- 顶部 banner：用 readme-typing-svg 做一个打字机标题 -->
+<!-- 顶部 banner -->
 <div align="center">
 
 <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story">
@@ -7,21 +7,34 @@
 
 # 🐧 鹅厂实习记
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&duration=2800&pause=900&color=0052D9&center=true&vCenter=true&width=520&lines=%E4%B8%80%E5%8F%AA%E6%89%93%E5%B7%A5%E4%BC%81%E9%B9%85%E7%9A%84%E5%AE%9E%E4%B9%A0%E6%B1%82%E7%94%9F%E8%B7%AF;%E4%BB%8A%E5%A4%A9%E4%B9%9F%E8%A6%81%E5%85%83%E6%B0%94%E6%BB%A1%E6%BB%A1%E5%9C%B0%E8%A2%AB%E9%9C%80%E6%B1%82%E8%B9%82%E8%BA%87%E5%93%A6+%E2%9C%A8;12+%E5%91%A8%E6%88%96+24+%E5%91%A8%EF%BC%8C%E4%BD%A0%E8%83%BD%E6%B4%BB%E5%88%B0%E6%9C%80%E5%90%8E%E5%90%97%EF%BC%9F" alt="Typing animation" />
+<p>
+  <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&duration=2800&pause=900&color=0052D9&center=true&vCenter=true&width=520&lines=%E4%B8%80%E5%8F%AA%E6%89%93%E5%B7%A5%E4%BC%81%E9%B9%85%E7%9A%84%E5%AE%9E%E4%B9%A0%E6%B1%82%E7%94%9F%E8%B7%AF;%E4%BB%8A%E5%A4%A9%E4%B9%9F%E8%A6%81%E5%85%83%E6%B0%94%E6%BB%A1%E6%BB%A1%E5%9C%B0%E8%A2%AB%E9%9C%80%E6%B1%82%E8%B9%82%E8%BA%87%E5%93%A6+%E2%9C%A8;12+%E5%91%A8%E6%88%96+24+%E5%91%A8%EF%BC%8C%E4%BD%A0%E8%83%BD%E6%B4%BB%E5%88%B0%E6%9C%80%E5%90%8E%E5%90%97%EF%BC%9F" alt="Typing animation" />
+  </a>
+</p>
 
 **致敬《人生重开模拟器》的轻量化网页文字冒险**
+
 **以"鹅厂实习生"视角，把职场生存压缩进十几分钟的轮回里**
 
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](./LICENSE)
-[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5-646cff?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+<p>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License"/></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react&logoColor=black" alt="React"/></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/></a>
+  <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-5-646cff?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind"/></a>
+</p>
 
-[![Stars](https://img.shields.io/github/stars/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story?style=social)](https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story?color=0052D9)](https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/commits/main)
+<p>
+  <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/stargazers"><img src="https://img.shields.io/github/stars/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story?style=social" alt="Stars"/></a>
+  <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/commits/main"><img src="https://img.shields.io/github/last-commit/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/main?color=0052D9" alt="Last Commit"/></a>
+</p>
 
-[**📦 部署上线指南**](./DEPLOY.md) · [**🐛 提个 issue**](https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/issues) · [**🌟 给个 Star**](https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story)
+<p>
+  <a href="./DEPLOY.md"><b>📦 部署上线指南</b></a> ·
+  <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story/issues"><b>🐛 提个 issue</b></a> ·
+  <a href="https://github.com/theAtlantic-zza/Tencent-Intern-Penguin-Survival-Story"><b>🌟 给个 Star</b></a>
+</p>
 
 </div>
 
