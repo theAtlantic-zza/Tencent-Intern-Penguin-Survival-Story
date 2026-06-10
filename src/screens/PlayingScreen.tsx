@@ -150,34 +150,15 @@ export default function PlayingScreen({ onOpenCollection }: Props) {
 
       {/* 过渡卡：刚做完选择，未刷新下一周 */}
       {!currentEvent && eventOptions.length === 0 && (
-        <Card className="animate-pop">
-          <div className="text-center text-[11px] tracking-widest text-slate-400">
-            本回合影响
-          </div>
-          <EffectsSummary effects={lastEffects} />
-
-          {lastOutcome && (
-            <div className="mt-3 rounded-lg bg-tx-ice/60 px-3 py-2 text-xs leading-relaxed text-tx-deep">
-              {lastOutcome}
-            </div>
-          )}
-          <div className="mt-4 text-center text-xs text-slate-500">
-            一周过去了……
-          </div>
-          <div className="mt-3 flex flex-col gap-2">
-            <Button
-              onClick={() => {
-                playSfx('click');
-                nextWeek();
-              }}
-            >
-              进入下一周 →
-            </Button>
-            <Button variant="ghost" onClick={goHome}>
-              结束这一世（回首页）
-            </Button>
-          </div>
-        </Card>
+        <OutcomeCard
+          outcome={lastOutcome}
+          effects={lastEffects}
+          onNext={() => {
+            playSfx('click');
+            nextWeek();
+          }}
+          onHome={goHome}
+        />
       )}
     </div>
   );
@@ -192,57 +173,87 @@ const EFFECT_META: Record<AttrKey, { label: string; emoji: string }> = {
   rank: { label: '转正进度', emoji: '🎯' },
 };
 
-function EffectsSummary({ effects }: { effects: Partial<Attrs> | null }) {
-  if (!effects) {
-    return (
-      <div className="mt-2 py-3 text-center text-xs text-slate-400">
-        没有任何变化
-      </div>
-    );
-  }
-  const entries = (Object.keys(effects) as AttrKey[])
-    .filter((k) => (effects[k] ?? 0) !== 0)
-    .map((k) => ({ k, v: effects[k] as number }));
+/**
+ * 过渡卡 V2：outcome 旁白为主角（带打字机），属性变化用横向 chip 紧凑展示
+ */
+function OutcomeCard({
+  outcome,
+  effects,
+  onNext,
+  onHome,
+}: {
+  outcome: string | null;
+  effects: Partial<Attrs> | null;
+  onNext: () => void;
+  onHome: () => void;
+}) {
+  // 没有 outcome 时直接用极简文案兜底，保证不空着
+  const fallback = '一周悄然过去，你又长大了一点。';
+  const text = outcome && outcome.trim() ? outcome : fallback;
+  const { shown, done, skip } = useTypewriter(text, 50);
 
-  if (entries.length === 0) {
-    return (
-      <div className="mt-2 py-3 text-center text-xs text-slate-400">
-        本回合属性无变化
-      </div>
-    );
-  }
+  const entries = effects
+    ? (Object.keys(effects) as AttrKey[])
+        .filter((k) => (effects[k] ?? 0) !== 0)
+        .map((k) => ({ k, v: effects[k] as number }))
+    : [];
 
   return (
-    <div className="mt-2 grid grid-cols-2 gap-2">
-      {entries.map(({ k, v }) => {
-        const meta = EFFECT_META[k];
-        const positive = v > 0;
-        return (
-          <div
-            key={k}
-            className={`animate-pop flex items-center gap-2 rounded-xl px-3 py-2.5 ring-1 ${
-              positive
-                ? 'bg-emerald-50 ring-emerald-200'
-                : 'bg-rose-50 ring-rose-200'
-            }`}
-          >
-            <span className="text-2xl leading-none">{meta.emoji}</span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[11px] text-slate-500">
-                {meta.label}
-              </div>
-              <div
-                className={`text-lg font-bold leading-tight ${
-                  positive ? 'text-emerald-600' : 'text-rose-600'
+    <Card className="animate-pop">
+      {/* 旁白主区：占据视觉中心，可点击跳过打字机 */}
+      <div
+        className="rounded-2xl bg-gradient-to-br from-tx-ice/80 to-white p-4 ring-1 ring-tx-blue/15"
+        onClick={skip}
+      >
+        <div className="text-[10px] tracking-[0.3em] text-tx-blue/70">
+          STORY
+        </div>
+        <div className="mt-1.5 min-h-[64px] text-[15px] font-medium leading-relaxed text-slate-800">
+          {shown}
+          {!done && (
+            <span className="ml-0.5 inline-block h-4 w-1 animate-pulse bg-slate-400 align-middle" />
+          )}
+        </div>
+        {!done && (
+          <div className="mt-1 text-right text-[10px] text-slate-400">
+            点击跳过 ↓
+          </div>
+        )}
+      </div>
+
+      {/* 属性变化 chip：横向紧凑排列 */}
+      {entries.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {entries.map(({ k, v }) => {
+            const meta = EFFECT_META[k];
+            const positive = v > 0;
+            return (
+              <span
+                key={k}
+                className={`inline-flex animate-pop items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
+                  positive
+                    ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+                    : 'bg-rose-50 text-rose-700 ring-rose-200'
                 }`}
               >
-                {positive ? `+${v}` : v}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+                <span>{meta.emoji}</span>
+                <span>{meta.label}</span>
+                <span>{positive ? `+${v}` : v}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="mt-4 flex flex-col gap-2">
+        <Button onClick={onNext} disabled={!done}>
+          {done ? '进入下一周 →' : '请先看完这段……'}
+        </Button>
+        <Button variant="ghost" onClick={onHome}>
+          结束这一世（回首页）
+        </Button>
+      </div>
+    </Card>
   );
 }
 
@@ -253,7 +264,6 @@ function EventDetail({
   event: GameEvent;
   onPick: (idx: number) => void;
 }) {
-  // 标题 + 副标 拼一段做打字机
   const fullText = event.subtitle
     ? `${event.title}\n${event.subtitle}`
     : event.title;
@@ -283,7 +293,7 @@ function EventDetail({
 
         <div className="mt-3 min-h-[40px] text-[15px] font-semibold leading-relaxed text-slate-800">
           {titleShown}
-          {!done && titleShown.length === event.title.length === false && (
+          {!done && titleShown.length < event.title.length && (
             <span className="ml-0.5 inline-block h-4 w-1 animate-pulse bg-slate-400 align-middle" />
           )}
         </div>
