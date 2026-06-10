@@ -201,6 +201,18 @@ export const EVENTS: GameEvent[] = [
         effects: { hp: 1, mentor: -2, rank: -1 },
         outcome: '第二天测试又来找你："还在复现。" 这次导师亲自来盯，气氛凝重。',
       },
+      {
+        text: '🚀 不测了直接上线',
+        emoji: '🚀',
+        effects: { iq: 4, rank: 5, mentor: 4, hp: -1 },
+        outcome: '上线丝滑，零事故。leader 在群里 @ 你："胆识 + 实力。"',
+        risk: {
+          chance: 0.45,
+          fallbackEffects: { mentor: -5, rank: -4, eq: -3, hp: -2 },
+          fallbackOutcome: '上线 5 分钟后线上炸了。CEO 在大群里问："这是谁批准上的？" 你被点名。',
+          fatalEndingId: 'fired',
+        },
+      },
     ],
   },
   {
@@ -326,6 +338,18 @@ export const EVENTS: GameEvent[] = [
         trackBias: { staff: 2 },
         outcome: '你笑着冲他们点点头，倒水离开。多年后回想起来，这是你在职场学会的第一课。',
       },
+      {
+        text: '📢 当吃瓜群主二次传播',
+        emoji: '📢',
+        effects: { eq: 5, hp: 1 },
+        outcome: '你成了部门"信息中枢"，全员都来打听消息。一不小心还混了个"人脉小达人"称号。',
+        risk: {
+          chance: 0.35,
+          fallbackEffects: { eq: -6, mentor: -5, rank: -3 },
+          fallbackOutcome: '你转的某条八卦被当事人截图发到了组长那里。组长冷冷对你说："以后管好嘴。"',
+          fatalEndingId: 'social_dead',
+        },
+      },
     ],
   },
   {
@@ -376,6 +400,17 @@ export const EVENTS: GameEvent[] = [
         trackBias: { pm: 3 },
         outcome: '老板停顿了一下："这个想法有点意思，你回头写个详细方案发我邮箱。" ——你找到了一条快速通道。',
       },
+      {
+        text: '💼 当场提涨薪',
+        emoji: '💼',
+        effects: { money: 8, eq: 3, rank: 3 },
+        outcome: '老板被你的胆量逗笑了："小朋友有想法。下个月给你按正职 80% 算。" 工资秒涨。',
+        risk: {
+          chance: 0.2,
+          fallbackEffects: { eq: -4, mentor: -3, rank: -2 },
+          fallbackOutcome: '老板眯起眼："这位实习生……还没转正就琢磨这个？" 电梯门一开他头也不回。',
+        },
+      },
     ],
   },
   {
@@ -400,6 +435,17 @@ export const EVENTS: GameEvent[] = [
         text: '🛌 装作没看见手机',
         effects: { hp: 2, mentor: -3, rank: -2 },
         outcome: '周一早上你打开钉钉，看到老板的"？？"和导师的连环问号。空气突然安静。',
+      },
+      {
+        text: '🚀 越级直接发邮件给 VP',
+        emoji: '🚀',
+        effects: { iq: 4, eq: 3, rank: 6, mentor: 4 },
+        outcome: 'VP 当晚回复："这个想法不错，下周我们聊。" 你的 leader 收到抄送时眯了眯眼，但点了赞。',
+        risk: {
+          chance: 0.3,
+          fallbackEffects: { eq: -4, mentor: -6, rank: -3 },
+          fallbackOutcome: 'VP 没回，但你的 leader 第二天找你："越级是大忌。下次想清楚。"',
+        },
       },
     ],
   },
@@ -449,6 +495,18 @@ export const EVENTS: GameEvent[] = [
         effects: { hp: -2, money: -1, eq: 1 },
         outcome: '"加红枣枸杞，少糖。" 你郑重其事地下了订单，仿佛这样就能续命。',
       },
+      {
+        text: '☠️ 喝两瓶红牛硬上',
+        emoji: '☠️',
+        effects: { iq: 5, hp: 2, mentor: 3, rank: 4 },
+        outcome: '你两瓶红牛下肚回到工位，思路清奇灵感爆棚。leader 看你完成度："这小孩有股劲。"',
+        risk: {
+          chance: 0.7,
+          fallbackEffects: { hp: -10 },
+          fallbackOutcome: '你才下半瓶就开始心慌出冷汗，撑到中午彻底倒在工位上。120 把你抬走了。',
+          fatalEndingId: 'burnout',
+        },
+      },
     ],
   },
   {
@@ -471,6 +529,18 @@ export const EVENTS: GameEvent[] = [
         text: '🎭 假装加班刷手机',
         effects: { hp: 1, eq: -1, mentor: 1 },
         outcome: '你打开 IDE 不动，刷了两小时小红书。10 点半离开时跟导师说"先走了"，他点了点头——这场表演完美。',
+      },
+      {
+        text: '🌙 通宵三天冲一波',
+        emoji: '🌙',
+        effects: { iq: 6, rank: 6, mentor: 5, hp: -3 },
+        outcome: '你三天两夜把项目肝到 100%。leader 在月会上说："这就是态度。" 你被记进了部门荣誉墙。',
+        risk: {
+          chance: 0.55,
+          fallbackEffects: { hp: -8, iq: -2 },
+          fallbackOutcome: '第三天凌晨你在工位睡着，醒来发现忘了备份代码，三天工作全没了。',
+          fatalEndingId: 'burnout',
+        },
       },
     ],
   },
@@ -543,6 +613,17 @@ export const EVENTS: GameEvent[] = [
         effects: { eq: -1 },
         outcome: '你拍了张照发了个"今日份治愈"，然后走了。回家路上你一直在想，它现在怎么样了。',
       },
+      {
+        text: '😺 直接抱回工位养',
+        emoji: '😺',
+        effects: { eq: 5, hp: 2, money: -2 },
+        outcome: '小猫成了部门吉祥物，每天有人给它喂猫条。leader 说："这只猫提升了团队幸福感。"',
+        risk: {
+          chance: 0.5,
+          fallbackEffects: { eq: -3, mentor: -3, money: -3 },
+          fallbackOutcome: '小猫在 leader 工位拉了一泡屎。整个组都知道是谁带来的。',
+        },
+      },
     ],
   },
   {
@@ -568,6 +649,18 @@ export const EVENTS: GameEvent[] = [
         effects: { hp: 1, mentor: -3, rank: -2 },
         outcome: '第二天早会复盘，你被点名："凌晨群里@了三次都没回。" 整个会议室没人替你说话。',
       },
+      {
+        text: '🦸 一个人扛下来',
+        emoji: '🦸',
+        effects: { iq: 4, hp: -2, mentor: 5, rank: 5 },
+        outcome: '你独立排查 + 修复 + 复盘，全程没叫人。组长第二天群里发："这就是我想要的实习生。"',
+        risk: {
+          chance: 0.5,
+          fallbackEffects: { hp: -5, mentor: -4, rank: -3 },
+          fallbackOutcome: '你硬扛 3 小时还没修好，故障扩大到全公司用户。复盘会上你的名字被写进了报告第一行。',
+          fatalEndingId: 'fired',
+        },
+      },
     ],
   },
   {
@@ -592,6 +685,17 @@ export const EVENTS: GameEvent[] = [
         text: '🛋 在家躺一周',
         effects: { hp: 3, mentor: -2 },
         outcome: '你睡了 14 小时，刷了一整周综艺。回公司时听同事在聊 hackathon，你突然觉得有点错过什么。',
+      },
+      {
+        text: '💡 自费三天做出 demo',
+        emoji: '💡',
+        effects: { iq: 5, hp: -2, money: -3, rank: 6, mentor: 4 },
+        outcome: '你的 demo 被 leader 拿到周会展示。CTO 当场拍板："这个方向立项，让这个实习生主导。"',
+        risk: {
+          chance: 0.5,
+          fallbackEffects: { hp: -3, money: -3, mentor: -2 },
+          fallbackOutcome: '你做了三天 demo 没人看。技术方向后来被否决。你只换来一句"年轻人有想法是好的"。',
+        },
       },
     ],
   },
@@ -766,6 +870,17 @@ export const EVENTS: GameEvent[] = [
         effects: { eq: -2, rank: -3, mentor: -2 },
         outcome: '你说了半天没说到重点。一个评委轻声问："你上半年具体做了什么？" 你脑子一片空白。',
       },
+      {
+        text: '🥊 现场挑战 leader 观点',
+        emoji: '🥊',
+        effects: { iq: 5, eq: 4, mentor: 5, rank: 6 },
+        outcome: '你引经据典反驳 leader，全场屏息。leader 沉默 3 秒后笑着说："你比我想得有种。Pass。"',
+        risk: {
+          chance: 0.3,
+          fallbackEffects: { eq: -5, mentor: -6, rank: -4 },
+          fallbackOutcome: 'leader 听完冷笑："你确定吗？" 然后逐条把你打回原形。这场答辩成了反面教材。',
+        },
+      },
     ],
   },
   {
@@ -789,6 +904,18 @@ export const EVENTS: GameEvent[] = [
         text: '🐧 婉拒，留下继续干',
         effects: { mentor: 3, rank: 2, eq: 1 },
         outcome: '你回了一句"谢谢但暂时不考虑"。两个月后你听说那家公司业务收缩——你长舒一口气。',
+      },
+      {
+        text: '💸 偷偷接私活',
+        emoji: '💸',
+        effects: { money: 12, iq: 2 },
+        outcome: '你接了一单 1.2w 的私活，深夜赶工三周交付。客户给好评。但你也学会了"职场暗物质"。',
+        risk: {
+          chance: 0.4,
+          fallbackEffects: { money: 3, eq: -3, mentor: -5 },
+          fallbackOutcome: '私活客户和公司客户撞了。HRBP 找你谈话："你的实习评估，需要重新讨论。"',
+          fatalEndingId: 'fired',
+        },
       },
     ],
   },
@@ -817,6 +944,17 @@ export const EVENTS: GameEvent[] = [
         text: '😶 听天由命',
         effects: { hp: 2, mentor: -2, rank: -2 },
         outcome: '你交了一份普通的述职。结果是 B。导师叹气："早跟你说过要重视。"',
+      },
+      {
+        text: '🎤 自告奋勇主讲',
+        emoji: '🎤',
+        effects: { iq: 4, eq: 4, rank: 6, mentor: 4 },
+        outcome: '你把项目讲得行云流水，三位评委破天荒给了你"超出预期"。这场答辩成了你的传奇。',
+        risk: {
+          chance: 0.5,
+          fallbackEffects: { eq: -4, mentor: -3, rank: -3 },
+          fallbackOutcome: '你紧张到第 2 页就读错了一个数据。评委对视一眼，再没问你问题。',
+        },
       },
     ],
   },
@@ -1102,6 +1240,17 @@ export const EVENTS: GameEvent[] = [
         effects: { money: -1, eq: 2, mentor: 1 },
         outcome: '一杯霸王茶姬下肚，研发哥的火气消了大半："行吧，看在奶茶的份上。"',
       },
+      {
+        text: '🛡️ 死磕到底就是不改',
+        emoji: '🛡️',
+        effects: { iq: 4, eq: 3, mentor: 4, rank: 5 },
+        outcome: '你拿出用户数据 + 商业逻辑 + 历史教训三连击。需求方撤回了改动。这场你赢了。',
+        risk: {
+          chance: 0.4,
+          fallbackEffects: { eq: -4, mentor: -4, rank: -3 },
+          fallbackOutcome: '需求方直接越级找 VP。你的 leader 半夜被叫起来开会，第二天看你的眼神变了。',
+        },
+      },
     ],
   },
   {
@@ -1254,6 +1403,18 @@ export const EVENTS: GameEvent[] = [
         effects: { hp: 2, eq: -3, mentor: -3, rank: -3 },
         outcome: '早上你打开钉钉，看到导师的连环 @。"昨晚去哪了？" 你不知道怎么回答。',
       },
+      {
+        text: '⚡ 不写测试直接合代码',
+        emoji: '⚡',
+        effects: { iq: 3, hp: 1, rank: 5, mentor: 3 },
+        outcome: '你的代码丝滑上线零问题。组长说："胆子大但运气好。下次还是写测试。"',
+        risk: {
+          chance: 0.4,
+          fallbackEffects: { mentor: -5, rank: -4, hp: -2 },
+          fallbackOutcome: '上线后线上崩溃 30 分钟，你被同事拉到电话会议骂了 2 小时。组长直接拒绝你的下个 PR。',
+          fatalEndingId: 'fired',
+        },
+      },
     ],
   },
   {
@@ -1330,6 +1491,17 @@ export const EVENTS: GameEvent[] = [
         effects: { eq: -3, mentor: -2 },
         outcome: '风控组在群里贴出了你三天前提交的"风控豁免申请"截图。所有人都不说话。',
       },
+      {
+        text: '🎪 现场即兴主持',
+        emoji: '🎪',
+        effects: { eq: 6, iq: 3, rank: 5, mentor: 4 },
+        outcome: '你脱稿 30 分钟，幽默接梗，气氛比预期好 10 倍。leader 当晚发圈："实习生扛起了主舞台。"',
+        risk: {
+          chance: 0.45,
+          fallbackEffects: { eq: -5, mentor: -4, rank: -3 },
+          fallbackOutcome: '你紧张到忘词 30 秒，全场尴尬。视频在内网流传了一周，标题叫"事故现场"。',
+        },
+      },
     ],
   },
   {
@@ -1405,6 +1577,642 @@ export const EVENTS: GameEvent[] = [
         text: '🙃 装作不知情',
         effects: { eq: -2, mentor: -2 },
         outcome: '"这个我不太清楚。" 你说。审计眯起眼睛："那这个签字是谁的？"',
+      },
+    ],
+  },
+  // ============ 新增职业专属事件 · 产品鹅 ============
+  {
+    id: 'pm_prd_war',
+    professionId: 'pm',
+    tag: TAG.work,
+    image: '/images/event-meeting.png',
+    minWeek: 2,
+    title: '研发同事看着你的 PRD 直接皱眉："这个交互我做不出来。"',
+    subtitle: '会议室空气凝固，所有人看着你。',
+    choices: [
+      {
+        text: '🤝 现场拆需求，做减法',
+        emoji: '🤝',
+        effects: { iq: 2, eq: 2, hp: -1, mentor: 1 },
+        outcome: '你深呼吸，把核心 5 个点抽出来。研发点头："这样能做。" 会议室里有人说："新来的还行。"',
+      },
+      {
+        text: '📈 数据 + 用户故事说服',
+        emoji: '📈',
+        effects: { iq: 3, hp: -2, rank: 2 },
+        outcome: '你掏出竞品数据 + 用户访谈，逻辑链一条条砸过去。研发抬眼："这个实习生有点东西。"',
+      },
+      {
+        text: '😤 跟研发对线："这是我们的 P0"',
+        emoji: '😤',
+        effects: { eq: -3, mentor: -1, hp: -1 },
+        outcome: '你和研发对喷了 20 分钟。leader 进来一看："你们俩饭吃饱了？" 全场尴尬。',
+      },
+    ],
+  },
+  {
+    id: 'pm_user_research',
+    professionId: 'pm',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 4,
+    title: '导师让你独立做一次用户访谈。',
+    subtitle: '"放手做，别怕翻车。"',
+    choices: [
+      {
+        text: '📋 老老实实按 SOP 走',
+        effects: { iq: 1, eq: 1, mentor: 1, rank: 1 },
+        outcome: '你按模板访了 8 个用户，输出报告 30 页。导师说："数据扎实，但缺洞察。" 中规中矩。',
+      },
+      {
+        text: '🎯 押宝 1 个核心用户深聊 3 小时',
+        effects: { iq: 4, hp: -2, mentor: 2, rank: 3 },
+        outcome: '那位用户聊出了一个团队没意识到的真实场景。你的访谈成了部门内部分享的样本。',
+      },
+      {
+        text: '🤖 让 AI 帮我归纳一下',
+        effects: { hp: 1, mentor: -2, iq: -1 },
+        outcome: '你把访谈录音丢给 AI 做总结。导师扫了一眼："这报告里有 3 个我们没访过的用户名……"',
+      },
+    ],
+  },
+  {
+    id: 'pm_priority_war',
+    professionId: 'pm',
+    tag: TAG.boss,
+    image: '/images/event-meeting.png',
+    minWeek: 5,
+    title: '老板半夜发消息：明天评审会前把这 3 个需求优先级排出来。',
+    choices: [
+      {
+        text: '⚖️ 用 RICE 框架打分',
+        effects: { iq: 2, hp: -1, mentor: 1, rank: 2 },
+        outcome: '你算到凌晨两点，输出一张评分表。老板早会上点头："这个分析靠谱。"',
+      },
+      {
+        text: '📞 直接给老板打电话问意图',
+        effects: { eq: 2, mentor: 2, hp: -1 },
+        outcome: '你硬着头皮打过去。老板被你的胆子逗笑了："小 PM 还挺敢。这周末请你喝奶茶。"',
+      },
+      {
+        text: '🙃 三个都标 P0',
+        effects: { mentor: -2, eq: -1, rank: -1 },
+        outcome: '老板看完直接 @ 你："你这是没思考过对吧？" 评审会被推迟两天。',
+      },
+    ],
+  },
+  {
+    id: 'pm_demo_day',
+    professionId: 'pm',
+    tag: TAG.promo,
+    image: '/images/event-reward.png',
+    minWeek: 7,
+    title: '部门 Demo Day，你被点名上台讲你的需求。',
+    choices: [
+      {
+        text: '🎤 提前三天彩排',
+        effects: { iq: 2, eq: 2, hp: -2, rank: 3, mentor: 2 },
+        outcome: '你讲得行云流水，连后排的总监都鼓了掌。隔天有 leader 在群里夸你。',
+      },
+      {
+        text: '😎 临场发挥就行',
+        effects: { eq: 3, hp: 1, rank: -1 },
+        outcome: '你台风稳健，但讲到第 3 张 ppt 时漏了一个数据。CEO 瞄你一眼。整体过得去。',
+      },
+      {
+        text: '🤧 装病请假',
+        effects: { hp: -3, mentor: -3, eq: -2 },
+        outcome: '你请了病假。但隔天有人看到你在咖啡店打游戏。导师沉默了一整天。',
+      },
+    ],
+  },
+  {
+    id: 'pm_stakeholder',
+    professionId: 'pm',
+    tag: TAG.social,
+    image: '/images/event-meeting.png',
+    minWeek: 6,
+    title: '隔壁组的 PM 想"借用"你正在跟的需求挂他名下。',
+    choices: [
+      {
+        text: '🛡️ 直接邮件抄送 leader',
+        effects: { eq: -1, mentor: 3, rank: 2 },
+        outcome: 'leader 秒回："这个需求归 [你的名字] 跟。" 隔壁组 PM 之后见你都绕道走。',
+      },
+      {
+        text: '🤝 答应合作署名',
+        effects: { eq: 2, rank: 1, mentor: 1 },
+        outcome: '你们一起把需求推完了。隔壁组 PM 在月会上特意提了你的名字。双赢。',
+      },
+      {
+        text: '😅 算了我让',
+        effects: { eq: 1, mentor: -2, rank: -2 },
+        outcome: '需求挂到了对方名下。月底评优，你看着自己的工作被表扬，名字却不是你。',
+      },
+    ],
+  },
+  // ============ 新增职业专属事件 · 设计鹅 ============
+  {
+    id: 'design_brand_redesign',
+    professionId: 'design',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 3,
+    title: '部门 logo 准备改版，征集方案。',
+    choices: [
+      {
+        text: '🎨 通宵做 5 版投稿',
+        effects: { iq: 4, hp: -3, rank: 3, mentor: 2 },
+        outcome: '你的 3 号方案被选中。改版上线那天，朋友圈刷屏，你的名字被写进了 release note。',
+      },
+      {
+        text: '🖌️ 做 1 版精品',
+        effects: { iq: 2, hp: -1, mentor: 1 },
+        outcome: '你的方案进了决赛三强。最终没选上，但 leader 说："你这风格留着，下次直接用。"',
+      },
+      {
+        text: '🤔 我再观望观望',
+        effects: { eq: 1, mentor: -1 },
+        outcome: '你犹豫了两天没投。截止前看到同部门一个新人投了方案——还被选中了。心态崩了一晚上。',
+      },
+    ],
+  },
+  {
+    id: 'design_pixel_war',
+    professionId: 'design',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    minWeek: 4,
+    title: 'PM 把你的设计稿改成了 PPT 直接发给老板，间距全错了。',
+    choices: [
+      {
+        text: '📐 拉个会议把规范讲清楚',
+        effects: { iq: 2, eq: 1, hp: -1, mentor: 1 },
+        outcome: 'PM 听完连连点头："原来 8px 是这个意思。" 你救了一个组的视觉系统。',
+      },
+      {
+        text: '😤 直接在群里 @ 老板纠正',
+        effects: { iq: 2, eq: -3, mentor: -2 },
+        outcome: '老板回："这种小事你单独发我就行。" 群里寂静三分钟。PM 之后两周没找你说话。',
+      },
+      {
+        text: '🙏 帮 PM 默默改回原版',
+        effects: { eq: 2, hp: -2, mentor: 1 },
+        outcome: '你加班到 11 点把所有 ppt 重做了一遍。PM 第二天送你一杯咖啡："谢了兄弟。"',
+      },
+    ],
+  },
+  {
+    id: 'design_prototype_review',
+    professionId: 'design',
+    tag: TAG.mentor,
+    image: '/images/event-meeting.png',
+    minWeek: 6,
+    title: '总监评审你的原型："这个交互不够 surprise。"',
+    choices: [
+      {
+        text: '✨ 加 3 个微动效炸场',
+        effects: { iq: 3, hp: -2, rank: 3, mentor: 2 },
+        outcome: '总监看完连点 5 次："这就对了。" 这套微交互被作为部门规范沉淀了下来。',
+      },
+      {
+        text: '🤷 "用户调研显示这样最直觉"',
+        effects: { iq: 2, eq: -1, mentor: -1 },
+        outcome: '总监皱眉："数据是数据，惊喜是惊喜。" 评审通过但没拿到 A 评级。',
+      },
+      {
+        text: '🙇 全部按总监意见改',
+        effects: { hp: -1, mentor: 1, iq: -1 },
+        outcome: '改了三版，最终上线效果……和你最初的版本差不多。但总监很满意。',
+      },
+    ],
+  },
+  {
+    id: 'design_ai_generate',
+    professionId: 'design',
+    tag: TAG.trap,
+    image: '/images/event-coffee.png',
+    minWeek: 5,
+    title: '同事建议你用 AI 直接生成所有 banner。',
+    choices: [
+      {
+        text: '🚫 坚持手做，AI 只做参考',
+        effects: { iq: 2, hp: -2, mentor: 2, rank: 1 },
+        outcome: '你做的 banner 被运营当成"基线版本"。隔壁组用 AI 生成的全部被打回。',
+      },
+      {
+        text: '🤖 全 AI 出图，效率拉满',
+        effects: { iq: -1, hp: 2, money: 2, mentor: -2, rank: -1 },
+        outcome: '你 1 小时出 30 张图。但有一张被发现"6 根手指"，整个部门笑了一周。',
+      },
+      {
+        text: '🎯 AI 出底稿，自己精修',
+        effects: { iq: 3, hp: -1, rank: 2, mentor: 1 },
+        outcome: '你的工作流被 leader 拿去内部分享："新人都该学这个。"',
+      },
+    ],
+  },
+  {
+    id: 'design_print_disaster',
+    professionId: 'design',
+    tag: TAG.trap,
+    image: '/images/event-confused.png',
+    minWeek: 7,
+    title: '线下活动物料印好了，发现你设计稿里有个错别字。',
+    choices: [
+      {
+        text: '😱 立刻申请重印',
+        effects: { money: -3, eq: -1, mentor: -1, rank: -1 },
+        outcome: '你自费贴了一半费用。导师叹了口气："以后多过两遍校对。" 物料是赶上了。',
+      },
+      {
+        text: '🙈 现场用贴纸盖上',
+        effects: { iq: 2, eq: 2, hp: -1, mentor: 1 },
+        outcome: '你连夜跑印厂买了 200 张定制贴纸。活动现场没人看出来。leader 说："这操作可以。"',
+      },
+      {
+        text: '🫥 假装不是我做的',
+        effects: { eq: -3, mentor: -3, rank: -2 },
+        outcome: '物料发出后被网友放大。组里复盘时所有人都看你。你嘴硬到最后还是被查出来。',
+      },
+    ],
+  },
+  // ============ 新增职业专属事件 · 研发鹅 ============
+  {
+    id: 'dev_oncall_3am',
+    professionId: 'dev',
+    tag: TAG.health,
+    image: '/images/event-dizzy.png',
+    minWeek: 3,
+    title: '凌晨 3 点服务挂了，oncall 是你。',
+    choices: [
+      {
+        text: '🚀 5 分钟排查 + 紧急回滚',
+        effects: { iq: 3, hp: -3, mentor: 3, rank: 3 },
+        outcome: '5 分钟内服务恢复。第二天复盘会上 leader 说："这就是教科书级的应急响应。"',
+      },
+      {
+        text: '📞 摇人帮忙',
+        effects: { iq: 1, hp: -1, eq: 2, mentor: 1, rank: 1 },
+        outcome: '你叫醒了组长，两人合力排查。组长说："以后大胆叫我，新人不用扛。"',
+      },
+      {
+        text: '🛌 装睡不接电话',
+        effects: { hp: 2, mentor: -4, rank: -3 },
+        outcome: '隔天 oncall 群一片哀嚎。leader 找你谈话："你的 oncall 表现是负分。"',
+      },
+    ],
+  },
+  {
+    id: 'dev_legacy_code',
+    professionId: 'dev',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    minWeek: 4,
+    title: '你被分到了一个 8 年祖传代码的模块。',
+    subtitle: '里面有个变量名叫 `data2_final_v3_use_this`。',
+    choices: [
+      {
+        text: '🧹 抽时间慢慢重构',
+        effects: { iq: 4, hp: -2, mentor: 3, rank: 3 },
+        outcome: '你重构了核心 200 行。组长在 PR 下留言："久违的赏心悦目。" 你的 commit 进了部门月报。',
+      },
+      {
+        text: '🩹 在上面贴补丁',
+        effects: { iq: 1, hp: 1, rank: 1 },
+        outcome: '你加了一层 if 把锅遮住。功能是好了，但代码 review 时同事打了个 doge 表情。',
+      },
+      {
+        text: '📜 加注释 "勿动，会炸"',
+        effects: { iq: 2, eq: -1, mentor: -1 },
+        outcome: '半年后另一个新人看到注释，依然动了它，依然炸了。但这次不怪你。',
+      },
+    ],
+  },
+  {
+    id: 'dev_perf_optim',
+    professionId: 'dev',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 5,
+    title: '接口响应 P99 飙到 2 秒，需要紧急优化。',
+    choices: [
+      {
+        text: '🔍 先 profile 再下手',
+        effects: { iq: 4, hp: -2, mentor: 2, rank: 3 },
+        outcome: '你定位到一个 N+1 查询，加了缓存后 P99 降到 80ms。组长把你的方案发到了部门技术群。',
+      },
+      {
+        text: '💡 凭直觉加索引',
+        effects: { iq: 1, hp: -1, rank: 1 },
+        outcome: '加完索引 P99 降到 800ms。能用，但组长说："你确定优化的是瓶颈点吗？"',
+      },
+      {
+        text: '🤷 这不是我的接口',
+        effects: { eq: -2, mentor: -2, rank: -1 },
+        outcome: '你说这个不归你管。leader 转给别人后，对你的印象悄悄打了个问号。',
+      },
+    ],
+  },
+  {
+    id: 'dev_open_source',
+    professionId: 'dev',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 6,
+    title: '你修了一个流行开源库的 bug，作者邀请你成为 contributor。',
+    choices: [
+      {
+        text: '🎉 接受 + 持续参与',
+        effects: { iq: 4, hp: -2, money: 1, mentor: 3, rank: 3 },
+        outcome: '你成了那个库的 contributor。简历里多了一行金光闪闪的字，HR 都来问你的故事。',
+      },
+      {
+        text: '🙏 谢谢，但忙不过来',
+        effects: { eq: 1, hp: 1, mentor: -1 },
+        outcome: '你婉拒了。半年后看到那个库火遍全网，contributor 名单里有几个你认识的同事。',
+      },
+      {
+        text: '💼 顺便简历更新一下',
+        effects: { iq: 1, money: 2, mentor: -2, rank: -1 },
+        outcome: '你重点写在了简历最显眼的位置。结果被 leader 看到："你最近想跑路？"',
+      },
+    ],
+  },
+  {
+    id: 'dev_review_war',
+    professionId: 'dev',
+    tag: TAG.social,
+    image: '/images/event-meeting.png',
+    minWeek: 5,
+    title: '资深同事 review 你的代码，留了 47 条评论。',
+    choices: [
+      {
+        text: '📚 一条条认真改',
+        effects: { iq: 3, hp: -2, eq: 1, mentor: 2, rank: 2 },
+        outcome: '你改完后他点了 LGTM 还顺手 +1："写得越来越像样了。" 你存了截图。',
+      },
+      {
+        text: '💬 挑几条有疑问的回辩',
+        effects: { iq: 2, eq: -1, mentor: 1 },
+        outcome: '你和他在 PR 下来回 30 个回合。最后他说："你说得有道理。" 你赢得了第一次 code 战争。',
+      },
+      {
+        text: '😶 全部 resolve 不改',
+        effects: { iq: -1, mentor: -3, rank: -2, eq: -2 },
+        outcome: '他直接拒绝合代码："我不想再 review 这个 PR 了。" 你的 PR 卡了 5 天。',
+      },
+    ],
+  },
+  // ============ 新增职业专属事件 · 运营鹅 ============
+  {
+    id: 'op_viral_moment',
+    professionId: 'op',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 4,
+    title: '你写的活动文案突然在小红书炸了，10w+ 阅读。',
+    choices: [
+      {
+        text: '🔥 趁热度追加 3 篇',
+        effects: { iq: 3, hp: -2, money: 3, mentor: 3, rank: 3 },
+        outcome: '你抓住流量做了完整传播链。整月 GMV 同比 +40%。leader 当众宣布把月度 MVP 给你。',
+      },
+      {
+        text: '📊 复盘成功因素 + 沉淀方法论',
+        effects: { iq: 4, hp: -1, mentor: 2, rank: 2 },
+        outcome: '你的复盘 PPT 被部门当成内部教材。你成了"方法论小能手"。',
+      },
+      {
+        text: '😊 在朋友圈晒一下截图就好',
+        effects: { eq: 1, money: 1, mentor: -1 },
+        outcome: '热度过了 3 天就没了。你 leader 在月会上看你："这波你只用来发朋友圈？"',
+      },
+    ],
+  },
+  {
+    id: 'op_kpi_pressure',
+    professionId: 'op',
+    tag: TAG.boss,
+    image: '/images/event-confused.png',
+    minWeek: 5,
+    title: '本月 KPI 还差 30%，老板给了你 3 天时间。',
+    choices: [
+      {
+        text: '💸 砸投放硬冲',
+        effects: { money: -3, eq: 1, hp: -1, mentor: 1, rank: 2 },
+        outcome: '你压上一半月度预算冲刺。KPI 完成 102%，但 ROI 比平时低不少。老板说："过了再说。"',
+      },
+      {
+        text: '🤝 联动其他业务线交换流量',
+        effects: { eq: 4, iq: 2, hp: -2, mentor: 3, rank: 3 },
+        outcome: '你跑通了 3 个跨部门合作。KPI 完成 115%。leader 把你写进了季度晋升候选名单。',
+      },
+      {
+        text: '📝 数据"美化"一下',
+        effects: { eq: -3, mentor: -4, rank: -2 },
+        outcome: '老板看一眼就发现了。"美化数据"四个字写进了你的实习评估。',
+      },
+    ],
+  },
+  {
+    id: 'op_event_chaos',
+    professionId: 'op',
+    tag: TAG.trap,
+    image: '/images/event-confused.png',
+    minWeek: 6,
+    title: '线下活动现场出问题：嘉宾迟到、设备失灵、用户投诉。',
+    choices: [
+      {
+        text: '🚒 兵分三路同时处理',
+        effects: { iq: 3, eq: 3, hp: -3, mentor: 3, rank: 3 },
+        outcome: '你 30 分钟内全部摆平。现场视频被剪进部门年终总结。leader 拍你肩："心态绝了。"',
+      },
+      {
+        text: '📞 找 leader 救场',
+        effects: { eq: 1, hp: -1, mentor: 1, rank: 1 },
+        outcome: 'leader 赶到现场撑了半小时。你学到了真正的危机公关。但绩效里少了"独立扛事"那一栏。',
+      },
+      {
+        text: '🚪 借口"上厕所"溜走',
+        effects: { hp: 2, eq: -3, mentor: -4, rank: -3 },
+        outcome: '事后没人责怪你，但所有人都记住了那个"消失的实习生"。',
+      },
+    ],
+  },
+  {
+    id: 'op_user_complaint',
+    professionId: 'op',
+    tag: TAG.work,
+    image: '/images/event-confused.png',
+    minWeek: 4,
+    title: '用户群里有人破口大骂："你们 xx 公司就是骗子！"',
+    choices: [
+      {
+        text: '💬 私聊安抚 + 走标准流程补偿',
+        effects: { eq: 3, iq: 2, hp: -1, mentor: 2 },
+        outcome: '用户最后回："其实你态度挺好。" 还在群里替你说话。leader 转发了你的应对到全组。',
+      },
+      {
+        text: '🗣️ 群内公开回应',
+        effects: { eq: 2, hp: -1, rank: 1 },
+        outcome: '你的回应被截图传播。一半人说"实习生厉害"，一半人说"态度有问题"。中性偏正。',
+      },
+      {
+        text: '🚫 直接 T 出群',
+        effects: { eq: -3, mentor: -3 },
+        outcome: '用户截图发到了脉脉。事情上升到公关层面。leader 半夜给你打电话。',
+      },
+    ],
+  },
+  {
+    id: 'op_celebrity_endorse',
+    professionId: 'op',
+    tag: TAG.chance,
+    image: '/images/event-reward.png',
+    minWeek: 7,
+    title: '一位中腰部 KOL 主动联系想合作。',
+    choices: [
+      {
+        text: '🤝 拉上 leader 一起谈',
+        effects: { iq: 2, eq: 2, hp: -1, mentor: 3, rank: 3 },
+        outcome: '合作 ROI 远超预期。leader 在合同上把你的名字写在了第二位。这单进了你的简历。',
+      },
+      {
+        text: '🦸 我自己来谈',
+        effects: { eq: 3, hp: -2, money: 2, rank: 2 },
+        outcome: '你独立谈下了首单。但合同里有几条条款不太利你方。下次别冲动。',
+      },
+      {
+        text: '🤔 先不接，先去调研',
+        effects: { iq: 1, eq: -1, mentor: -1 },
+        outcome: '你调研了 3 天。等你回复时 KOL 已经被竞品签了。leader："机会窗口意识。"',
+      },
+    ],
+  },
+  // ============ 新增职业专属事件 · 职能鹅 ============
+  {
+    id: 'staff_policy_change',
+    professionId: 'staff',
+    tag: TAG.work,
+    image: '/images/event-meeting.png',
+    minWeek: 3,
+    title: '总部下发新政策，需要你 24 小时内传达到各部门。',
+    choices: [
+      {
+        text: '📨 写邮件 + 群通知 + 会议讲解',
+        effects: { iq: 2, eq: 2, hp: -2, mentor: 2, rank: 2 },
+        outcome: '你三管齐下，没有人遗漏。HRBP 在月会上点名表扬你的执行力。',
+      },
+      {
+        text: '📋 群里发个 PDF',
+        effects: { hp: 1, mentor: -1, rank: -1 },
+        outcome: '70% 的人没看。一周后还有部门来问。你被 leader 提醒"沟通是核心能力"。',
+      },
+      {
+        text: '🎤 录个短视频解读',
+        effects: { iq: 3, eq: 3, hp: -1, mentor: 3, rank: 3 },
+        outcome: '你录的 3 分钟视频被 HR 总监点赞，转发到全公司。你成了"政策小达人"。',
+      },
+    ],
+  },
+  {
+    id: 'staff_compliance',
+    professionId: 'staff',
+    tag: TAG.boss,
+    image: '/images/event-confused.png',
+    minWeek: 5,
+    title: '发现某部门有个流程不合规，但他们 leader 比较强势。',
+    choices: [
+      {
+        text: '📑 上报合规部 + 留底证据',
+        effects: { iq: 2, eq: -1, mentor: 3, rank: 3 },
+        outcome: '合规部介入后整改。你被记一功，但那个 leader 之后见你都点头不说话。',
+      },
+      {
+        text: '🗨️ 私下找他们 leader 沟通',
+        effects: { eq: 3, hp: -1, mentor: 2, rank: 1 },
+        outcome: '对方 leader 同意整改，对你说："这小孩有分寸。" 你赢得了一个隐形人脉。',
+      },
+      {
+        text: '🙈 装作没看见',
+        effects: { eq: -2, mentor: -3, rank: -2 },
+        outcome: '半年后这事被审计查出来。你的名字也在"知情不报"名单里。',
+      },
+    ],
+  },
+  {
+    id: 'staff_layoff_rumor',
+    professionId: 'staff',
+    tag: TAG.social,
+    image: '/images/event-meeting.png',
+    minWeek: 6,
+    title: '同事偷偷问你："听说要裁员？你内部消息多……"',
+    choices: [
+      {
+        text: '🤐 "我也不清楚，等正式通知。"',
+        effects: { eq: 2, mentor: 2, rank: 1 },
+        outcome: '你守口如瓶。HRBP 知道后说："这个实习生职业素养不错。"',
+      },
+      {
+        text: '🙊 "听说这个组可能受影响……"',
+        effects: { eq: -3, mentor: -4, rank: -2 },
+        outcome: '消息半天传遍全组。HRBP 找你："这种事不能从你嘴里出来，你懂吗？"',
+      },
+      {
+        text: '🤝 "我去打听一下。"',
+        effects: { eq: -1, hp: -1, mentor: -2 },
+        outcome: '你跑去 HRBP 那边旁敲侧击。HRBP 一句"小朋友别打听"打发了你。',
+      },
+    ],
+  },
+  {
+    id: 'staff_budget_cut',
+    professionId: 'staff',
+    tag: TAG.boss,
+    image: '/images/event-meeting.png',
+    minWeek: 6,
+    title: '财务通知：你部门的实习生预算被砍了 40%。',
+    choices: [
+      {
+        text: '📊 重新做预算分配方案',
+        effects: { iq: 4, hp: -2, mentor: 3, rank: 3 },
+        outcome: '你的方案保留了所有核心岗位。leader 说："这个实习生比正职还会过日子。"',
+      },
+      {
+        text: '🤝 跑去财务谈判争取',
+        effects: { eq: 3, hp: -1, money: 1, mentor: 2 },
+        outcome: '你磨了财务两天，争取回 15% 的预算。财务总监说："这小孩有韧性。"',
+      },
+      {
+        text: '😥 直接跟 leader 报告',
+        effects: { eq: 1, mentor: -1 },
+        outcome: 'leader 皱眉："那你打算怎么办？" 你没接上话。这次显得你只会传话。',
+      },
+    ],
+  },
+  {
+    id: 'staff_gossip_lord',
+    professionId: 'staff',
+    tag: TAG.social,
+    image: '/images/event-coffee.png',
+    minWeek: 4,
+    title: '茶水间偶遇高管，聊起来发现人对你印象不错。',
+    choices: [
+      {
+        text: '😊 礼貌寒暄就好',
+        effects: { eq: 2, mentor: 1, rank: 1 },
+        outcome: '高管走前点点头："好好干。" 后来你才知道他是隔壁大组的总监。',
+      },
+      {
+        text: '🎯 抓住机会聊聊业务想法',
+        effects: { iq: 3, eq: 3, hp: -1, mentor: 3, rank: 3 },
+        outcome: '你 5 分钟讲了一个观察。高管掏手机加你企微："改天细聊。" 你的等级上限被打开了。',
+      },
+      {
+        text: '🤐 紧张到说不出话',
+        effects: { hp: -1, eq: -1 },
+        outcome: '你一个字都没挤出来。回到工位你扇了自己一巴掌。下次……下次再说。',
       },
     ],
   },

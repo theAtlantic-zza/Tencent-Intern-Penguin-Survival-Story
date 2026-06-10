@@ -30,6 +30,22 @@ export interface Choice {
   effects: Partial<Attrs>;
   trackBias?: Partial<Record<Track, number>>;
   outcome?: string;
+  /**
+   * 高风险高回报选项：选了之后按 chance 掷骰子
+   * - 命中：使用 effects（高回报版本）+ outcome
+   * - 未中：使用 fallbackEffects + fallbackOutcome（崩盘版本）
+   * - 如果 fatalEndingId 有值且未命中，直接触发该结局
+   */
+  risk?: {
+    /** 0~1 之间的成功概率，e.g. 0.4 = 40% 成功 */
+    chance: number;
+    /** 失败时的 effects（覆盖 effects） */
+    fallbackEffects: Partial<Attrs>;
+    /** 失败旁白 */
+    fallbackOutcome: string;
+    /** 失败时直接触发的结局 id（如 'burnout' / 'fired'） */
+    fatalEndingId?: string;
+  };
 }
 
 export interface EventTag {

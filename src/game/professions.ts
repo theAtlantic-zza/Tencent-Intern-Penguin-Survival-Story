@@ -14,6 +14,14 @@ export interface Profession {
     /** 改造选项的实际生效数值 */
     modify: (effects: Partial<Attrs>) => Partial<Attrs>;
   };
+  /** 职业被动 buff（每周自动触发，UI 显示在顶部） */
+  passive: {
+    name: string;
+    /** UI 简短描述，显示在职业标签下方 */
+    desc: string;
+    /** 每周回调，返回本周自动产生的属性变化（不返回则无变化） */
+    tick: (ctx: { week: number; attrs: Attrs }) => Partial<Attrs> | null;
+  };
 }
 
 /** 5 个入职部门 */
@@ -34,6 +42,11 @@ export const PROFESSIONS: Profession[] = [
         return out;
       },
     },
+    passive: {
+      name: '会议磨练',
+      desc: '每 3 周自动 +1 情商',
+      tick: ({ week }) => (week > 1 && (week - 1) % 3 === 0 ? { eq: 1 } : null),
+    },
   },
   {
     id: 'design',
@@ -50,6 +63,11 @@ export const PROFESSIONS: Profession[] = [
         if (out.hp !== undefined && out.hp < 0) out.hp = Math.floor(out.hp * 1.2);
         return out;
       },
+    },
+    passive: {
+      name: '改稿大神',
+      desc: '智力 ≥10 时每周 +1 转正进度',
+      tick: ({ attrs }) => (attrs.iq >= 10 ? { rank: 1 } : null),
     },
   },
   {
@@ -69,6 +87,11 @@ export const PROFESSIONS: Profession[] = [
         return out;
       },
     },
+    passive: {
+      name: '通宵修真',
+      desc: '体力 ≤3 时每周自动 +2 智力',
+      tick: ({ attrs }) => (attrs.hp <= 3 ? { iq: 2 } : null),
+    },
   },
   {
     id: 'op',
@@ -85,6 +108,11 @@ export const PROFESSIONS: Profession[] = [
         if (out.eq !== undefined && out.eq < 0) out.eq = out.eq * 2;
         return out;
       },
+    },
+    passive: {
+      name: 'KPI 奖金',
+      desc: '每 2 周自动 +1 存款',
+      tick: ({ week }) => (week > 1 && (week - 1) % 2 === 0 ? { money: 1 } : null),
     },
   },
   {
@@ -105,6 +133,12 @@ export const PROFESSIONS: Profession[] = [
         });
         return out;
       },
+    },
+    passive: {
+      name: '流程红利',
+      desc: '每 4 周自动 +1 转正进度 +1 导师好感',
+      tick: ({ week }) =>
+        week > 1 && (week - 1) % 4 === 0 ? { rank: 1, mentor: 1 } : null,
     },
   },
 ];

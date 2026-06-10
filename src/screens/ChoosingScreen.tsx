@@ -75,6 +75,14 @@ export default function ChoosingScreen() {
               </span>
               {p.signatureTalent.desc}
             </div>
+
+            {/* 职业被动 buff（每周自动触发） */}
+            <div className="mt-1.5 rounded-lg bg-violet-50 px-2.5 py-1.5 text-[11px] leading-relaxed text-violet-800 ring-1 ring-violet-200">
+              <span className="font-semibold">
+                ⚙️ 职业被动 · {p.passive.name}：
+              </span>
+              {p.passive.desc}
+            </div>
           </button>
         ))}
       </div>
