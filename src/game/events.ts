@@ -401,14 +401,14 @@ export const EVENTS: GameEvent[] = [
         outcome: '老板停顿了一下："这个想法有点意思，你回头写个详细方案发我邮箱。" ——你找到了一条快速通道。',
       },
       {
-        text: '💼 当场提涨薪',
+        text: '💼 当场抢转正名额',
         emoji: '💼',
-        effects: { money: 8, eq: 3, rank: 3 },
-        outcome: '老板被你的胆量逗笑了："小朋友有想法。下个月给你按正职 80% 算。" 工资秒涨。',
+        effects: { eq: 3, mentor: 4, rank: 8 },
+        outcome: '"我想留下来，今年我就是想要这个 HC。" 老板愣了 2 秒后笑了："有种。下楼我让 HR 备案。"',
         risk: {
           chance: 0.2,
           fallbackEffects: { eq: -4, mentor: -3, rank: -2 },
-          fallbackOutcome: '老板眯起眼："这位实习生……还没转正就琢磨这个？" 电梯门一开他头也不回。',
+          fallbackOutcome: '老板眯起眼："这位实习生……连答辩都没过就琢磨这个？" 电梯门一开他头也不回。',
         },
       },
     ],
